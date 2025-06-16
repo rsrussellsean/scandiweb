@@ -1,2 +1,0 @@
-# scandiweb
-ecommerce for scandiweb
