@@ -1,49 +1,62 @@
-import { ShoppingCartIcon } from "@heroicons/react/24/outline";
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
+import { Cart } from "../cart/Cart";
 
 const Navbar = () => {
   return (
-    <nav className="pt-8 relative text-black py-4 flex items-center justify-between">
-      <ul className="flex space-x-6">
-        <li>
-          <Link
-            to={"/"}
-            className="hover:underline underline-offset-4 decoration-green-500"
-          >
-            ALL
-          </Link>
-        </li>
-        <li>
-          <Link
-            to={"category/clothes"}
-            className="hover:underline underline-offset-4 decoration-green-500"
-          >
-            CLOTHES
-          </Link>
-        </li>
-        <li>
-          <Link
-            to={"category/technology"}
-            className="hover:underline underline-offset-4 decoration-green-500"
-          >
-            TECHNOLOGY
-          </Link>
-        </li>
-      </ul>
+    <div className="w-full bg-white fixed top-0 left-0 z-50 shadow">
+      <nav className="container mx-auto relative z-50 text-black py-6 bg-white px-10 flex items-center justify-between">
+        {/* Left Nav Links */}
+        <ul className="flex space-x-4">
+          <li>
+            <NavLink
+              to="/"
+              end
+              className={({ isActive }) =>
+                `underline-offset-4 decoration-green-500 decoration-2 hover:underline hover:text-green-500 ${
+                  isActive ? "underline text-green-500" : ""
+                }`
+              }
+            >
+              ALL
+            </NavLink>
+          </li>
+          <li>
+            <NavLink
+              to="/category/clothes"
+              className={({ isActive }) =>
+                `underline-offset-4 decoration-green-500 decoration-2 hover:underline hover:text-green-500 ${
+                  isActive ? "underline text-green-500" : ""
+                }`
+              }
+            >
+              CLOTHES
+            </NavLink>
+          </li>
+          <li>
+            <NavLink
+              to="/category/tech"
+              className={({ isActive }) =>
+                `underline-offset-4 decoration-green-500 decoration-2 hover:underline hover:text-green-500 ${
+                  isActive ? "underline text-green-500" : ""
+                }`
+              }
+            >
+              TECHNOLOGY
+            </NavLink>
+          </li>
+        </ul>
 
-      <div className="absolute left-1/2 transform -translate-x-1/2 text-2xl font-bold">
-        MyLogo
-      </div>
+        {/* Center Logo */}
+        <div className="absolute left-1/2 transform -translate-x-1/2 text-2xl font-bold whitespace-nowrap">
+          MyLogo
+        </div>
 
-      <div>
-        <button className="relative hover:text-green-500">
-          <ShoppingCartIcon className="h-6 w-6" />
-          <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1">
-            3
-          </span>
-        </button>
-      </div>
-    </nav>
+        {/* Right Cart */}
+        <div>
+          <Cart />
+        </div>
+      </nav>
+    </div>
   );
 };
 
