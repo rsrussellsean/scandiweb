@@ -16,6 +16,12 @@ const Navbar = () => {
                   isActive ? "underline text-green-500" : ""
                 }`
               }
+              {...{
+                "data-testid":
+                  window.location.pathname === "/"
+                    ? "active-category-link"
+                    : "category-link",
+              }}
             >
               ALL
             </NavLink>
@@ -23,11 +29,18 @@ const Navbar = () => {
           <li>
             <NavLink
               to="/category/clothes"
+              end
               className={({ isActive }) =>
                 `underline-offset-4 decoration-green-500 decoration-2 hover:underline hover:text-green-500 ${
                   isActive ? "underline text-green-500" : ""
                 }`
               }
+              {...{
+                "data-testid":
+                  window.location.pathname === "/"
+                    ? "active-category-link"
+                    : "category-link",
+              }}
             >
               CLOTHES
             </NavLink>
@@ -35,11 +48,18 @@ const Navbar = () => {
           <li>
             <NavLink
               to="/category/tech"
+              end
               className={({ isActive }) =>
                 `underline-offset-4 decoration-green-500 decoration-2 hover:underline hover:text-green-500 ${
                   isActive ? "underline text-green-500" : ""
                 }`
               }
+              {...{
+                "data-testid":
+                  window.location.pathname === "/"
+                    ? "active-category-link"
+                    : "category-link",
+              }}
             >
               TECHNOLOGY
             </NavLink>

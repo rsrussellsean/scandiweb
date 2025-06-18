@@ -1,9 +1,11 @@
 import { useParams, Link } from "react-router-dom";
+import { useCart } from "../../context/CartContext";
 
-import { PlusIcon } from "@heroicons/react/24/outline";
+import { ShoppingCartIcon } from "@heroicons/react/24/outline";
 import productData from "../../json/data.json";
 
 const ProductList = () => {
+  const { addToCart } = useCart();
   const products = productData.data.products;
   const { categoryName } = useParams();
 
@@ -18,6 +20,26 @@ const ProductList = () => {
     if (categoryName === "tech") return "Technology";
     return "";
   };
+
+  const createDefaultProduct = (product) => {
+    const selectedAttributes = {};
+
+    product.attributes?.forEach((attr) => {
+      selectedAttributes[attr.name] = attr.items[0].displayValue; // Use displayValue for matching in UI
+    });
+
+    return {
+      id: product.id,
+      name: product.name,
+      price: product.prices[0],
+      imageSrc: product.gallery[0],
+      imageAlt: product.name,
+      attributes: product.attributes,
+      selectedAttributes,
+      quantity: 1,
+    };
+  };
+
   return (
     <div className="bg-white pt-20">
       <h1 className="text-4xl pt-8">{getHeading()}</h1>
@@ -26,10 +48,14 @@ const ProductList = () => {
           {filteredProducts.map((product) => (
             <div
               key={product.id}
-              className="relative group bg-white p-4 shadow-sm"
+              data-testid={`product-${product.name
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, "-")
+                .replace(/(^-|-$)/g, "")}`}
+              className="relative group bg-white p-4 hover:shadow-md transition-all duration-300 ease-in-out"
             >
               {!product.inStock && (
-                <div className="absolute inset-0 flex items-center justify-center bg-white opacity-40 rounded-lg z-2">
+                <div className="absolute inset-0 flex items-center justify-center bg-white opacity-40 rounded-lg z-2 cursor-not-allowed">
                   <span className="text-black text-lg pb-20">OUT OF STOCK</span>
                 </div>
               )}
@@ -39,7 +65,7 @@ const ProductList = () => {
                   <img
                     alt={product.name}
                     src={product.gallery[0]}
-                    className="aspect-square w-full rounded-lg bg-gray-200 object-cover group-hover:opacity-85 xl:aspect-7/8"
+                    className="aspect-square w-full rounded-lg bg-gray-200 object-cover xl:aspect-7/8"
                   />
                 </Link>
 
@@ -50,14 +76,13 @@ const ProductList = () => {
                     {product.prices[0].currency.symbol}
                     {product.prices[0].amount}
                   </p>
-                  <Link to={`/product/${product.id}`}>
-                    <button
-                      className="p-1 cursor-pointer rounded-full bg-green-300 hover:bg-green-500"
-                      disabled={!product.inStock}
-                    >
-                      <PlusIcon className="h-5 w-5 text-white" />
-                    </button>
-                  </Link>
+                  <button
+                    onClick={() => addToCart(createDefaultProduct(product))}
+                    className="p-1 cursor-pointer rounded-full bg-green-300 hover:bg-green-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                    disabled={!product.inStock}
+                  >
+                    <ShoppingCartIcon className="h-5 w-5 text-white" />
+                  </button>
                 </div>
               </div>
             </div>

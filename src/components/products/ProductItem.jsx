@@ -50,13 +50,17 @@ const ProductItem = () => {
       attributesToCart[key] = obj.displayValue;
     }
 
+    const selectedCurrencyIndex = 0; // 🔁 You can later make this dynamic
+    const selectedPrice = product.prices[selectedCurrencyIndex];
+
     addToCart({
       id: product.id,
       name: product.name,
-      price: `${product.prices[0].currency.symbol}${product.prices[0].amount}`,
+      price: selectedPrice,
       imageSrc: product.gallery[0],
       imageAlt: product.name,
-      ...attributesToCart,
+      selectedAttributes: attributesToCart,
+      attributes: product.attributes, // ✅ store all attribute options
     });
   };
 
@@ -68,10 +72,13 @@ const ProductItem = () => {
     <div className="bg-white py-16 px-4 sm:px-6 lg:px-8 pt-30">
       <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-10">
         {/* Image Section */}
-        <div className="w-full lg:w-1/2 flex gap-4">
+        <div
+          className="w-full lg:w-1/2 flex gap-4"
+          data-testid="product-gallery"
+        >
           {/* Thumbnails */}
           <div
-            className="flex flex-col gap-2 pt-5 overflow-y-auto"
+            className="flex flex-col gap-2 pt-5 overflow-y-auto scrollbar-hide"
             style={{ maxHeight: "800px" }} // Set scrollable height
           >
             {product.gallery.map((img, index) => (
@@ -89,11 +96,11 @@ const ProductItem = () => {
           </div>
 
           {/* Main Image with Arrows */}
-          <div className="relative w-full">
+          <div className="relative w-full flex justify-center items-center max-h-[600px] overflow-hidden">
             <img
               src={product.gallery[currentImage]}
               alt={product.name}
-              className="w-full p-5 rounded-lg object-cover aspect-square"
+              className="rounded-lg object-contain max-h-[600px] aspect-square"
             />
             <button
               onClick={prevImage}
@@ -119,7 +126,13 @@ const ProductItem = () => {
             {product.attributes?.length > 0 && (
               <div className="mt-6 space-y-6">
                 {product.attributes.map((attribute) => (
-                  <div key={attribute.id}>
+                  <div
+                    key={attribute.id}
+                    data-testid={`product-attribute-${attribute.name
+                      .toLowerCase()
+                      .replace(/[^a-z0-9]+/g, "-")
+                      .replace(/(^-|-$)/g, "")}`}
+                  >
                     <p className="text-sm font-bold uppercase text-gray-800">
                       {attribute.name}:
                     </p>
@@ -190,6 +203,7 @@ ${
 
             {/* Add to Cart */}
             <button
+              data-testid="add-to-cart"
               className={`mt-10 px-6 py-3 text-white text-sm font-bold w-50 transition 
     ${
       allSelected
@@ -203,7 +217,10 @@ ${
             </button>
 
             {/* Description */}
-            <div className="mt-6 text-black text-sm w-100">
+            <div
+              className="mt-6 text-black text-sm w-100"
+              data-testid="product-description"
+            >
               {parse(product.description)}
             </div>
           </div>
