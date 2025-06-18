@@ -7,7 +7,7 @@ const Navbar = () => {
       <nav className="container mx-auto relative z-50 text-black py-6 bg-white px-10 flex items-center justify-between">
         {/* Left Nav Links */}
         <ul className="flex space-x-4">
-          <li>
+          <li data-testid="category-link">
             <NavLink
               to="/"
               end
@@ -16,17 +16,12 @@ const Navbar = () => {
                   isActive ? "underline text-green-500" : ""
                 }`
               }
-              {...{
-                "data-testid":
-                  window.location.pathname === "/"
-                    ? "active-category-link"
-                    : "category-link",
-              }}
             >
               ALL
             </NavLink>
           </li>
-          <li>
+
+          <li data-testid="category-link">
             <NavLink
               to="/category/clothes"
               end
@@ -35,17 +30,12 @@ const Navbar = () => {
                   isActive ? "underline text-green-500" : ""
                 }`
               }
-              {...{
-                "data-testid":
-                  window.location.pathname === "/"
-                    ? "active-category-link"
-                    : "category-link",
-              }}
             >
               CLOTHES
             </NavLink>
           </li>
-          <li>
+
+          <li data-testid="category-link">
             <NavLink
               to="/category/tech"
               end
@@ -54,12 +44,6 @@ const Navbar = () => {
                   isActive ? "underline text-green-500" : ""
                 }`
               }
-              {...{
-                "data-testid":
-                  window.location.pathname === "/"
-                    ? "active-category-link"
-                    : "category-link",
-              }}
             >
               TECHNOLOGY
             </NavLink>

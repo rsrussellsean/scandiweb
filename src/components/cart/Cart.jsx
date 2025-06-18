@@ -105,14 +105,7 @@ export const Cart = () => {
                                       {item.price?.amount?.toFixed(2)}
                                     </p>
                                     {item.attributes?.map((attribute) => (
-                                      <div
-                                        key={attribute.id}
-                                        className="mt-2"
-                                        data-testid={`cart-item-attribute-${attribute.name
-                                          .toLowerCase()
-                                          .replace(/\s+/g, "-")}`}
-                                      >
-                                        {" "}
+                                      <div key={attribute.id} className="mt-2">
                                         <p className="text-sm font-semibold">
                                           {attribute.name}:
                                         </p>
@@ -151,16 +144,16 @@ export const Cart = () => {
                                                   );
                                                 }}
                                                 className={`cursor-pointer rounded border flex items-center justify-center transition duration-150
-  ${isColor ? "w-8 h-8" : "px-3 py-1 text-sm"}
-  ${
-    isColor
-      ? isSelected
-        ? "border-[3px] border-green-500"
-        : "border border-gray-300"
-      : isSelected
-      ? "bg-black text-white border-black"
-      : "border border-gray-300 text-gray-800 hover:bg-black hover:text-white"
-  }`}
+            ${isColor ? "w-8 h-8" : "px-3 py-1 text-sm"}
+            ${
+              isColor
+                ? isSelected
+                  ? "border-[3px] border-green-500"
+                  : "border border-gray-300"
+                : isSelected
+                ? "bg-black text-white border-black"
+                : "border border-gray-300 text-gray-800 hover:bg-black hover:text-white"
+            }`}
                                                 style={{
                                                   backgroundColor: isColor
                                                     ? attrItem.value

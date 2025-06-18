@@ -1,27 +1,21 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import ProductList from "./components/products/ProductList";
-import ProductOverview from "./components/products/ProductItem";
+import ProductItem from "./components/products/ProductItem";
 import Navbar from "./components/navbar/Navbar";
 
 import "./App.css";
 
 function App() {
   return (
-    <Router>
-      <div className="container mx-auto">
-        <Navbar />
-        <Routes>
-          {/* Home route */}
-          <Route path="/" element={<Home />} />
-
-          {/* <Route path="/" element={<ProductList />} /> */}
-          <Route path="/category/:categoryName" element={<ProductList />} />
-          {/* Product details route */}
-          <Route path="/product/:id" element={<ProductOverview />} />
-        </Routes>
-      </div>
-    </Router>
+    <div className="container mx-auto">
+      <Navbar />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/category/:categoryName" element={<ProductList />} />
+        <Route path="/product/:id" element={<ProductItem />} />
+      </Routes>
+    </div>
   );
 }
 
