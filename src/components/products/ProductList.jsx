@@ -1,24 +1,42 @@
 import { useParams, Link } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
+import { useEffect, useState } from "react";
 
 import { ShoppingCartIcon } from "@heroicons/react/24/outline";
-import productData from "../../json/data.json";
 
 const ProductList = () => {
   const { addToCart } = useCart();
-  const products = productData.data.products;
   const { categoryName } = useParams();
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("http://localhost:8080/public/products.php")
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("Fetched data:", data);
+        setProducts(data.data.products); // ✅ access the correct nested array
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Fetch error:", err);
+        setLoading(false);
+      });
+  }, []);
 
   const filteredProducts =
     !categoryName || categoryName === "all"
       ? products
-      : products.filter((product) => product.category === categoryName);
+      : products.filter(
+          (product) =>
+            product.category?.toLowerCase() === categoryName.toLowerCase()
+        );
 
   const getHeading = () => {
     if (!categoryName || categoryName === "all") return "All";
     if (categoryName === "clothes") return "Clothes";
     if (categoryName === "tech") return "Technology";
-    return "";
+    return categoryName;
   };
 
   const createDefaultProduct = (product) => {
@@ -40,6 +58,9 @@ const ProductList = () => {
     };
   };
 
+  if (loading) return <p className="pt-24">Loading products...</p>;
+  if (!Array.isArray(filteredProducts)) return <p>Product data invalid</p>;
+
   return (
     <div className="bg-white pt-20">
       <h1 className="text-4xl pt-8">{getHeading()}</h1>
@@ -48,10 +69,6 @@ const ProductList = () => {
           {filteredProducts.map((product) => (
             <div
               key={product.id}
-              data-testid={`product-${product.name
-                .toLowerCase()
-                .replace(/[^a-z0-9]+/g, "-")
-                .replace(/(^-|-$)/g, "")}`}
               className="relative group bg-white p-4 hover:shadow-md transition-all duration-300 ease-in-out"
             >
               {!product.inStock && (

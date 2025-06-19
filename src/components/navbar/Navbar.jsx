@@ -1,7 +1,7 @@
 import { NavLink } from "react-router-dom";
 import { Cart } from "../cart/Cart";
 import { ShoppingBagIcon } from "@heroicons/react/24/solid";
-import ShoppingBag from "../../../public/bag.svg";
+import ShoppingBag from "../../assets/bag.svg";
 const Navbar = () => {
   return (
     <div className="w-full bg-white fixed top-0 left-0 z-50 shadow">
