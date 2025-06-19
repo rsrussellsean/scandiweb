@@ -25,7 +25,7 @@ const ProductList = () => {
     const selectedAttributes = {};
 
     product.attributes?.forEach((attr) => {
-      selectedAttributes[attr.name] = attr.items[0].displayValue; // Use displayValue for matching in UI
+      selectedAttributes[attr.name] = attr.items[0].displayValue;
     });
 
     return {

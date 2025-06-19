@@ -50,7 +50,7 @@ export const Cart = () => {
                 transition
                 className="pointer-events-auto w-screen max-w-[500px] transform transition duration-500 ease-in-out data-[state=closed]:translate-x-full sm:duration-700 mr-40"
               >
-                {/* height */}
+                {/* Height */}
                 <div className="flex h-[80vh] flex-col overflow-y-auto bg-white shadow-xl ">
                   <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-6">
                     <div className="flex items-start justify-between">

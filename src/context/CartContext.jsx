@@ -54,7 +54,6 @@ export const CartProvider = ({ children, initialCartItems = [] }) => {
   };
 
   const updateAttributes = (itemToUpdate, newSelectedAttrs) => {
-    // Convert display values to a key string for easier comparison
     const getKey = (item) =>
       item.id +
       JSON.stringify(item.selectedAttributes || {})
@@ -71,10 +70,9 @@ export const CartProvider = ({ children, initialCartItems = [] }) => {
     for (const item of cartItems) {
       const currentKey = getKey(item);
 
-      if (item === itemToUpdate) continue; // Skip item being updated
+      if (item === itemToUpdate) continue;
 
       if (currentKey === updatedKey) {
-        // Found a matching item with same new attributes
         updatedItems.push({
           ...item,
           quantity: item.quantity + itemToUpdate.quantity,

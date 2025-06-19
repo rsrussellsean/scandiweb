@@ -50,7 +50,7 @@ const ProductItem = () => {
       attributesToCart[key] = obj.displayValue;
     }
 
-    const selectedCurrencyIndex = 0; // 🔁 You can later make this dynamic
+    const selectedCurrencyIndex = 0;
     const selectedPrice = product.prices[selectedCurrencyIndex];
 
     addToCart({
@@ -60,7 +60,7 @@ const ProductItem = () => {
       imageSrc: product.gallery[0],
       imageAlt: product.name,
       selectedAttributes: attributesToCart,
-      attributes: product.attributes, // ✅ store all attribute options
+      attributes: product.attributes,
     });
   };
 
@@ -79,7 +79,7 @@ const ProductItem = () => {
           {/* Thumbnails */}
           <div
             className="flex flex-col gap-2 pt-5 overflow-y-auto scrollbar-hide"
-            style={{ maxHeight: "800px" }} // Set scrollable height
+            style={{ maxHeight: "800px" }}
           >
             {product.gallery.map((img, index) => (
               <img
@@ -96,11 +96,11 @@ const ProductItem = () => {
           </div>
 
           {/* Main Image with Arrows */}
-          <div className="relative w-full flex justify-center items-center max-h-[600px] overflow-hidden">
+          <div className="relative w-full flex justify-center items-center h-[600px] w-full lg:w-[600px]">
             <img
               src={product.gallery[currentImage]}
               alt={product.name}
-              className="rounded-lg object-contain max-h-[600px] aspect-square"
+              className="rounded-lg object-contain h-full w-full"
             />
             <button
               onClick={prevImage}

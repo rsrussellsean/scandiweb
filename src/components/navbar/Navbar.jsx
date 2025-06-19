@@ -1,11 +1,11 @@
 import { NavLink } from "react-router-dom";
 import { Cart } from "../cart/Cart";
-
+import { ShoppingBagIcon } from "@heroicons/react/24/solid";
+import ShoppingBag from "../../../public/bag.svg";
 const Navbar = () => {
   return (
     <div className="w-full bg-white fixed top-0 left-0 z-50 shadow">
-      <nav className="container mx-auto relative z-50 text-black py-6 bg-white px-10 flex items-center justify-between">
-        {/* Left Nav Links */}
+      <nav className="container mx-auto relative z-50 text-black py-6 bg-white flex items-center justify-between">
         <ul className="flex space-x-4">
           <li data-testid="category-link">
             <NavLink
@@ -50,12 +50,14 @@ const Navbar = () => {
           </li>
         </ul>
 
-        {/* Center Logo */}
         <div className="absolute left-1/2 transform -translate-x-1/2 text-2xl font-bold whitespace-nowrap">
-          MyLogo
+          {/* <ShoppingBagIcon className="h-8 w-8 text-green-500" /> */}
+          <img
+            src={ShoppingBag}
+            alt="Shopping Bag"
+            style={{ width: "30px", height: "30px" }}
+          />
         </div>
-
-        {/* Right Cart */}
         <div>
           <Cart />
         </div>
