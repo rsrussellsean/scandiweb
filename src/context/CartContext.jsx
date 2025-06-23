@@ -54,43 +54,50 @@ export const CartProvider = ({ children, initialCartItems = [] }) => {
   };
 
   const updateAttributes = (itemToUpdate, newSelectedAttrs) => {
-    const getKey = (item) =>
-      item.id +
-      JSON.stringify(item.selectedAttributes || {})
-        .replace(/\s+/g, "")
-        .toLowerCase();
-
-    const updatedKey =
-      itemToUpdate.id +
-      JSON.stringify(newSelectedAttrs).replace(/\s+/g, "").toLowerCase();
-
-    const updatedItems = [];
-    let merged = false;
-
-    for (const item of cartItems) {
-      const currentKey = getKey(item);
-
-      if (item === itemToUpdate) continue;
-
-      if (currentKey === updatedKey) {
-        updatedItems.push({
-          ...item,
-          quantity: item.quantity + itemToUpdate.quantity,
-        });
-        merged = true;
-      } else {
-        updatedItems.push(item);
-      }
-    }
-
-    if (!merged) {
-      updatedItems.push({
-        ...itemToUpdate,
+    setCartItems((prevCart) => {
+      const updatedKey = JSON.stringify({
+        id: itemToUpdate.id,
         selectedAttributes: newSelectedAttrs,
       });
-    }
 
-    setCartItems(updatedItems);
+      let existingIndex = -1;
+
+      const newCart = prevCart.reduce((acc, item, index) => {
+        const currentKey = JSON.stringify({
+          id: item.id,
+          selectedAttributes: item.selectedAttributes,
+        });
+
+        if (item === itemToUpdate) {
+          // We'll update this later if needed
+          return acc;
+        }
+
+        if (currentKey === updatedKey) {
+          existingIndex = acc.length; // Mark where to merge
+        }
+
+        acc.push(item);
+        return acc;
+      }, []);
+
+      if (existingIndex !== -1) {
+        // Merge with existing
+        newCart[existingIndex] = {
+          ...newCart[existingIndex],
+          quantity: newCart[existingIndex].quantity + itemToUpdate.quantity,
+        };
+      } else {
+        // Insert updated item in the same position as original
+        const originalIndex = prevCart.findIndex((i) => i === itemToUpdate);
+        newCart.splice(originalIndex, 0, {
+          ...itemToUpdate,
+          selectedAttributes: newSelectedAttrs,
+        });
+      }
+
+      return newCart;
+    });
   };
 
   const clearCart = () => setCartItems([]);

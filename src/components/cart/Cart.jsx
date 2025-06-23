@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useCart } from "../../context/CartContext";
-
+// change to react portal
 import {
   Dialog,
   DialogBackdrop,
@@ -17,7 +17,39 @@ import {
 
 export const Cart = () => {
   const [open, setOpen] = useState(false);
-  const { cartItems, removeFromCart, updateQty, updateAttributes } = useCart();
+  const { cartItems, removeFromCart, updateQty, updateAttributes, clearCart } =
+    useCart();
+
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [orderId, setOrderId] = useState(null);
+  const [orderedItems, setOrderedItems] = useState([]);
+
+  const handlePlaceOrder = async () => {
+    try {
+      const res = await fetch("http://localhost:8080/public/place_order.php", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ items: cartItems }),
+      });
+
+      const result = await res.json();
+
+      if (res.ok) {
+        setOrderId(result.orderId);
+        setOrderedItems(cartItems);
+        setShowSuccessModal(true);
+        setOpen(false);
+        clearCart();
+      } else {
+        alert("Failed to place order: " + result.error);
+      }
+    } catch (err) {
+      console.error("Error placing order", err);
+      alert("Unexpected error placing order");
+    }
+  };
 
   return (
     <div>
@@ -246,7 +278,10 @@ export const Cart = () => {
                           PLACE ORDER
                         </button>
                       ) : (
-                        <button className="flex w-full items-center justify-center  bg-green-500 px-6 py-3 text-base font-medium text-white shadow-xs hover:bg-green-600 cursor-pointer">
+                        <button
+                          onClick={handlePlaceOrder}
+                          className="flex w-full items-center justify-center  bg-green-500 px-6 py-3 text-base font-medium text-white shadow-xs hover:bg-green-600 cursor-pointer"
+                        >
                           PLACE ORDER
                         </button>
                       )}
@@ -258,6 +293,66 @@ export const Cart = () => {
           </div>
         </div>
       </Dialog>
+
+      <Transition show={showSuccessModal}>
+        <Dialog
+          open={showSuccessModal}
+          onClose={() => setShowSuccessModal(false)}
+          className="fixed inset-0 z-30 flex items-center justify-center"
+        >
+          <DialogBackdrop className="fixed inset-0 bg-gray-500/75 transition-opacity" />
+
+          <DialogPanel className="relative z-40 max-w-2xl w-full  bg-white rounded-xl p-8 shadow-xl text-center">
+            <DialogTitle className="text-xl font-semibold text-green-600">
+              ✅ Order Placed Successfully!
+            </DialogTitle>
+
+            {orderedItems.length > 0 && (
+              <div className="mt-4 text-left ">
+                <p className="text-md font-bold text-black">Order Summary:</p>
+                <ul className="mt-2 max-h-100 overflow-y-auto text-sm text-gray-700 space-y-2">
+                  {orderedItems.map((item, idx) => (
+                    <li key={idx} className="pb-1 border-b border-gray-300">
+                      <div className="font-medium pt-4">{item.name}</div>
+                      <div className="pt-2 text-sm">
+                        Qty:{" "}
+                        <span className="font-medium">{item.quantity}</span>
+                      </div>
+                      <div className="text-sm">
+                        Price:{" "}
+                        <span className="font-medium">
+                          {item.price?.currency?.symbol}
+                          {(item.price?.amount * item.quantity).toFixed(2)}
+                        </span>
+                      </div>
+
+                      {item.selectedAttributes && (
+                        <div className="mt-2 space-y-1 text-sm text-black">
+                          {Object.entries(item.selectedAttributes).map(
+                            ([key, value]) => (
+                              <div key={key}>
+                                {key}:{" "}
+                                <span className="font-medium">{value}</span>
+                              </div>
+                            )
+                          )}
+                        </div>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <button
+              onClick={() => setShowSuccessModal(false)}
+              className="mt-4 cursor-pointer bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+            >
+              Close
+            </button>
+          </DialogPanel>
+        </Dialog>
+      </Transition>
     </div>
   );
 };

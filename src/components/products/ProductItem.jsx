@@ -8,12 +8,28 @@ import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
 
 const ProductItem = () => {
   const { id } = useParams();
-  const product = productData.data.products.find((p) => p.id === id);
+  // const product = productData.data.products.find((p) => p.id === id);
   const [currentImage, setCurrentImage] = useState(0);
   const [selectedAttributes, setSelectedAttributes] = useState({});
-
   const { addToCart } = useCart();
 
+  const [product, setProduct] = useState(null); // ✅ added
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch(`http://localhost:8080/public/product.php?id=${id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setProduct(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch product", err);
+        setLoading(false);
+      });
+  }, [id]);
+
+  if (loading) return <p className="pt-24">Loading product...</p>;
   if (!product) return <p>Product not found</p>;
 
   const nextImage = () => {
