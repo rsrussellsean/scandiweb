@@ -304,7 +304,7 @@ export const Cart = () => {
 
           <DialogPanel className="relative z-40 max-w-2xl w-full  bg-white rounded-xl p-8 shadow-xl text-center">
             <DialogTitle className="text-xl font-semibold text-green-600">
-              ✅ Order Placed Successfully!
+              Order Placed Successfully!
             </DialogTitle>
 
             {orderedItems.length > 0 && (

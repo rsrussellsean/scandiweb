@@ -3,6 +3,7 @@ import { useCart } from "../../context/CartContext";
 import { useEffect, useState } from "react";
 
 import { ShoppingCartIcon } from "@heroicons/react/24/outline";
+import Loading from "../Loading/Loading";
 
 const ProductList = () => {
   const { addToCart } = useCart();
@@ -14,8 +15,8 @@ const ProductList = () => {
     fetch("http://localhost:8080/public/products.php")
       .then((res) => res.json())
       .then((data) => {
-        console.log("Fetched data:", data);
-        setProducts(data.data.products); // ✅ access the correct nested array
+        // console.log("Fetched data:", data);
+        setProducts(data.data.products);
         setLoading(false);
       })
       .catch((err) => {
@@ -58,7 +59,7 @@ const ProductList = () => {
     };
   };
 
-  if (loading) return <p className="pt-24">Loading products...</p>;
+  if (loading) return <Loading />;
   if (!Array.isArray(filteredProducts)) return <p>Product data invalid</p>;
 
   return (

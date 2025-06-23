@@ -3,8 +3,9 @@ import { useState, useEffect, useRef } from "react";
 import { useCart } from "../../context/CartContext";
 import parse from "html-react-parser";
 
-import productData from "../../json/data.json";
+// import productData from "../../json/data.json";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
+import Loading from "../Loading/Loading";
 
 const ProductItem = () => {
   const { id } = useParams();
@@ -13,7 +14,7 @@ const ProductItem = () => {
   const [selectedAttributes, setSelectedAttributes] = useState({});
   const { addToCart } = useCart();
 
-  const [product, setProduct] = useState(null); // ✅ added
+  const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -29,7 +30,7 @@ const ProductItem = () => {
       });
   }, [id]);
 
-  if (loading) return <p className="pt-24">Loading product...</p>;
+  if (loading) return <Loading />;
   if (!product) return <p>Product not found</p>;
 
   const nextImage = () => {

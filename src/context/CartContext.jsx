@@ -69,12 +69,11 @@ export const CartProvider = ({ children, initialCartItems = [] }) => {
         });
 
         if (item === itemToUpdate) {
-          // We'll update this later if needed
           return acc;
         }
 
         if (currentKey === updatedKey) {
-          existingIndex = acc.length; // Mark where to merge
+          existingIndex = acc.length;
         }
 
         acc.push(item);
@@ -82,13 +81,11 @@ export const CartProvider = ({ children, initialCartItems = [] }) => {
       }, []);
 
       if (existingIndex !== -1) {
-        // Merge with existing
         newCart[existingIndex] = {
           ...newCart[existingIndex],
           quantity: newCart[existingIndex].quantity + itemToUpdate.quantity,
         };
       } else {
-        // Insert updated item in the same position as original
         const originalIndex = prevCart.findIndex((i) => i === itemToUpdate);
         newCart.splice(originalIndex, 0, {
           ...itemToUpdate,
