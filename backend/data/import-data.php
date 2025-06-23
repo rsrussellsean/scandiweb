@@ -15,7 +15,7 @@ $pdo->exec("SET FOREIGN_KEY_CHECKS = 1");
 $json = file_get_contents("data.json");
 $data = json_decode($json, true);
 
-// ✅ Insert categories
+// Insert categories
 $categories = $data['data']['categories'];
 
 foreach ($categories as $c) {
@@ -23,7 +23,7 @@ foreach ($categories as $c) {
     $stmt->execute([$c['name']]);
 }
 
-// ✅ Insert products
+// Insert products
 $products = $data['data']['products'];
 
 foreach ($products as $p) {

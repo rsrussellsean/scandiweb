@@ -4,6 +4,8 @@ namespace App\Repositories;
 
 use App\Config\Database;
 use PDO;
+use App\Models\Attribute\AttributeFactory;
+
 
 class ProductRepository
 {
@@ -16,7 +18,7 @@ class ProductRepository
 
     public function getAll(): array
 {
-    // Step 1: Fetch all base product info
+    // Fetch all base product info
     $stmt = $this->pdo->query("
         SELECT 
             p.id, p.name, p.in_stock, p.description, p.category, p.brand,
@@ -52,13 +54,13 @@ class ProductRepository
                     ]
                 ]
             ],
-            "attributes" => [] // placeholder
+            "attributes" => [] 
         ];
     }
 
     if (count($productIds) === 0) return array_values($products);
 
-    // Step 2: Fetch all attributes in one go
+    //Fetch all attributes in one go
     $inQuery = implode(",", array_fill(0, count($productIds), "?"));
     $attrStmt = $this->pdo->prepare("
         SELECT a.product_id, a.id AS attr_id, a.name, a.type, 
@@ -69,7 +71,7 @@ class ProductRepository
     ");
     $attrStmt->execute($productIds);
 
-    // Step 3: Map attributes to the correct products
+    // Map attributes to the correct products
     foreach ($attrStmt->fetchAll() as $row) {
         $productId = $row['product_id'];
         $attrName = $row['name'];
@@ -94,7 +96,7 @@ class ProductRepository
         ];
     }
 
-    // Step 4: Convert attributesAssoc to plain array
+    // Convert attributesAssoc to plain array
     foreach ($products as &$product) {
         $product['attributes'] = array_values($product['attributesAssoc'] ?? []);
         unset($product['attributesAssoc']);
@@ -130,26 +132,10 @@ class ProductRepository
         WHERE a.product_id = ?
     ");
     $attrStmt->execute([$id]);
+    $rawAttributes = $attrStmt->fetchAll();
 
-    $attributes = [];
-    foreach ($attrStmt->fetchAll() as $a) {
-        $attrName = $a['name'];
-
-        if (!isset($attributes[$attrName])) {
-            $attributes[$attrName] = [
-                'id' => $a['attr_id'],
-                'name' => $a['name'],
-                'type' => $a['type'],
-                'items' => []
-            ];
-        }
-
-        $attributes[$attrName]['items'][] = [
-            'id' => $a['item_id'],
-            'value' => $a['value'],
-            'displayValue' => $a['display_value']
-        ];
-    }
+    // Use resolver 
+    $attributeArray = \App\Resolvers\AttributeResolver::resolve($rawAttributes);
 
     return [
         "id" => $row["id"],
@@ -159,18 +145,17 @@ class ProductRepository
         "category" => $row["category"],
         "brand" => $row["brand"],
         "gallery" => array_map('trim', explode(",", $row["gallery"])),
-        "prices" => [
-            [
-                "amount" => (float) $row["amount"],
-                "currency" => [
-                    "label" => $row["currency_label"],
-                    "symbol" => $row["currency_symbol"]
-                ]
+        "prices" => [[
+            "amount" => (float) $row["amount"],
+            "currency" => [
+                "label" => $row["currency_label"],
+                "symbol" => $row["currency_symbol"]
             ]
-        ],
-        "attributes" => array_values($attributes)
+        ]],
+        "attributes" => $attributeArray
     ];
 }
+
 
 
 }

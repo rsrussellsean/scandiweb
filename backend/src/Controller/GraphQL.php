@@ -9,39 +9,54 @@ use GraphQL\Type\Schema;
 use GraphQL\Type\SchemaConfig;
 use RuntimeException;
 use Throwable;
+use App\Repositories\ProductRepository;
+use App\GraphQL\Types\TypeRegistry;
+use App\Mutations\OrderMutation;
+use App\Repositories\CategoryRepository;
+
+
 
 class GraphQL {
     static public function handle() {
         try {
-            $queryType = new ObjectType([
-                'name' => 'Query',
-                'fields' => [
-                    'echo' => [
-                        'type' => Type::string(),
-                        'args' => [
-                            'message' => ['type' => Type::string()],
-                        ],
-                        'resolve' => static fn ($rootValue, array $args): string => $rootValue['prefix'] . $args['message'],
-                    ],
+
+        $queryType = new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'products' => [
+                    'type' => Type::listOf(TypeRegistry::product()),
+                    'resolve' => function () {
+                        $repo = new ProductRepository();
+                        return $repo->getAll();
+                    }
                 ],
-            ]);
+                'categories' => [
+                    'type' => Type::listOf(TypeRegistry::category()),
+                    'resolve' => function () {
+                        $repo = new CategoryRepository();
+                        return $repo->getAll(); // This now dynamically fetches from DB
+                    }
+                ]
+            ]
+        ]);
+
         
-            $mutationType = new ObjectType([
-                'name' => 'Mutation',
-                'fields' => [
-                    'sum' => [
-                        'type' => Type::int(),
-                        'args' => [
-                            'x' => ['type' => Type::int()],
-                            'y' => ['type' => Type::int()],
-                        ],
-                        'resolve' => static fn ($calc, array $args): int => $args['x'] + $args['y'],
+           $mutationType = new ObjectType([
+            'name' => 'Mutation',
+            'fields' => [
+                'placeOrder' => [
+                    'type' => Type::string(), // You can replace this later with a more detailed return type
+                    'args' => [
+                        'items' => Type::nonNull(Type::listOf(TypeRegistry::orderInput()))
                     ],
-                ],
-            ]);
+                    'resolve' => function ($root, $args) {
+                        return OrderMutation::placeOrder($args['items']);
+                    }
+                ]
+            ],
+        ]);
         
-            // See docs on schema options:
-            // https://webonyx.github.io/graphql-php/schema-definition/#configuration-options
+          
             $schema = new Schema(
                 (new SchemaConfig())
                 ->setQuery($queryType)
