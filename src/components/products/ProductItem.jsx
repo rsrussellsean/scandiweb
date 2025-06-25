@@ -18,7 +18,8 @@ const ProductItem = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`http://localhost:8080/public/product.php?id=${id}`)
+    fetch(`${import.meta.env.VITE_API_URL}/api/product.php?id=${id}`)
+      // fetch(`/api/product.php?id=${id}`)
       .then((res) => res.json())
       .then((data) => {
         setProduct(data);
@@ -86,7 +87,7 @@ const ProductItem = () => {
   );
 
   return (
-    <div className="bg-white py-16 px-4 sm:px-6 lg:px-8 pt-30">
+    <div className="bg-white py-16 px-4 sm:px-6 lg:px-8 pt-30 overflow-x-hidden">
       <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-10">
         {/* Image Section */}
         <div
@@ -113,19 +114,21 @@ const ProductItem = () => {
           </div>
 
           {/* Main Image with Arrows */}
-          <div className="relative w-full flex justify-center items-center h-[600px] w-full lg:w-[600px]">
+          <div className="relative flex justify-center items-center h-[600px] w-full max-w-[600px]">
             <img
               src={product.gallery[currentImage]}
               alt={product.name}
               className="rounded-lg object-contain h-full w-full"
             />
             <button
+              aria-label="Left Icon"
               onClick={prevImage}
               className="absolute top-1/2 left-2 transform -translate-y-1/2 bg-black opacity-50 hover:opacity-80 text-white p-2"
             >
               <ChevronLeftIcon className="w-6 h-6" />
             </button>
             <button
+              aria-label="Right Icon"
               onClick={nextImage}
               className="absolute top-1/2 right-2 transform -translate-y-1/2 bg-black opacity-50 hover:opacity-80 text-white p-2"
             >
@@ -219,26 +222,30 @@ ${
             </p>
 
             {/* Add to Cart */}
-            <button
-              data-testid="add-to-cart"
-              className={`mt-10 px-6 py-3 text-white text-sm font-bold w-50 transition 
+            <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
+              {/* Add to Cart */}
+              <button
+                aria-label="Add To Cart button"
+                data-testid="add-to-cart"
+                className={`mt-10 px-6 py-3 text-white text-sm font-bold w-50 transition 
     ${
       allSelected
         ? "bg-green-500 hover:bg-green-700 cursor-pointer"
         : "bg-gray-400 cursor-not-allowed"
     }`}
-              onClick={handleAddToCart}
-              disabled={!allSelected}
-            >
-              ADD TO CART
-            </button>
+                onClick={handleAddToCart}
+                disabled={!allSelected}
+              >
+                ADD TO CART
+              </button>
 
-            {/* Description */}
-            <div
-              className="mt-6 text-black text-sm w-100"
-              data-testid="product-description"
-            >
-              {parse(product.description)}
+              {/* Description */}
+              <div
+                className="mt-6 text-black text-sm w-[300px] sm:w-[300px] md:w-[400px] lg:w-full"
+                data-testid="product-description"
+              >
+                {parse(product.description)}
+              </div>
             </div>
           </div>
         </div>

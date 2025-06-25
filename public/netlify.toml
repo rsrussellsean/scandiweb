@@ -1,0 +1,5 @@
+[[redirects]]
+  from = "/api/*"
+  to = "http://rsx.onlinewebshop.net/api/:splat"
+  status = 200
+  force = true

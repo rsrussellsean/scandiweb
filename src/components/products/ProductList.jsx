@@ -12,7 +12,8 @@ const ProductList = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost:8080/public/products.php")
+    fetch(`${import.meta.env.VITE_API_URL}/api/products.php`)
+      // fetch("/api/products.php")
       .then((res) => res.json())
       .then((data) => {
         // console.log("Fetched data:", data);
@@ -63,14 +64,18 @@ const ProductList = () => {
   if (!Array.isArray(filteredProducts)) return <p>Product data invalid</p>;
 
   return (
-    <div className="bg-white pt-20">
-      <h1 className="text-4xl pt-8">{getHeading()}</h1>
-      <div className="mx-auto max-w2xl px-0 py-16 sm:px-0 sm:py-12">
+    <div className="bg-white pt-20 ">
+      <h1 className="text-4xl pt-8 pl-4 lg:pl-5">{getHeading()}</h1>
+      <div className="mx-auto max-w-screen-md lg:max-w-none px-4 md:px-6 py-12">
         <div className="grid grid-cols-1 gap-x-10 gap-y-16 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 xl:gap-x-12">
           {filteredProducts.map((product) => (
             <div
               key={product.id}
-              className="relative group bg-white p-4 hover:shadow-md transition-all duration-300 ease-in-out"
+              data-testid={`product-${product.name
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, "-")
+                .replace(/^-+|-+$/g, "")}`}
+              className="relative group bg-white p-4 shadow-sm md:shadow-none md:hover:shadow-md transition-shadow duration-300 ease-in-out  "
             >
               {!product.inStock && (
                 <div className="absolute inset-0 flex items-center justify-center bg-white opacity-40 rounded-lg z-2 cursor-not-allowed">
@@ -95,11 +100,14 @@ const ProductList = () => {
                     {product.prices[0].amount}
                   </p>
                   <button
+                    aria-label="Shopping Cart Icon"
                     onClick={() => addToCart(createDefaultProduct(product))}
-                    className="p-1 cursor-pointer rounded-full bg-green-300 hover:bg-green-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                    className="p-1 cursor-pointer rounded-full bg-green-500 text-white 
+             transition-opacity duration-300 
+             md:opacity-0 md:group-hover:opacity-100"
                     disabled={!product.inStock}
                   >
-                    <ShoppingCartIcon className="h-5 w-5 text-white" />
+                    <ShoppingCartIcon className="h-5 w-5" />
                   </button>
                 </div>
               </div>

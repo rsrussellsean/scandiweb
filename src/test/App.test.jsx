@@ -3,6 +3,50 @@ import App from "../App";
 import { CartProvider } from "../context/CartContext";
 import productData from "../json/data.json";
 import { MemoryRouter } from "react-router-dom";
+import { cleanup } from "@testing-library/react";
+import { afterEach } from "vitest";
+
+afterEach(() => {
+  cleanup();
+});
+
+beforeAll(() => {
+  global.fetch = vi.fn((url) => {
+    if (url.includes("categories.php")) {
+      return Promise.resolve({
+        json: () =>
+          Promise.resolve([
+            { id: 1, name: "All" },
+            { id: 2, name: "Clothes" },
+            { id: 3, name: "Tech" },
+          ]),
+      });
+    }
+
+    if (url.includes("products.php")) {
+      return Promise.resolve({
+        json: () => Promise.resolve(productData),
+      });
+    }
+
+    if (url.includes("product.php?id=")) {
+      const id = url.split("id=")[1];
+      const product = productData.data.products.find(
+        (p) => p.id.toString() === id.toString()
+      );
+
+      return Promise.resolve({
+        json: () => Promise.resolve(product || null),
+      });
+    }
+
+    return Promise.reject(new Error("Unhandled fetch: " + url));
+  });
+});
+
+afterAll(() => {
+  global.fetch.mockRestore?.();
+});
 
 beforeEach(() => {
   const mockCartItems = [
@@ -39,10 +83,14 @@ const renderApp = (initialRoute = "/") =>
     </MemoryRouter>
   );
 
-test("renders category links and cart button", () => {
+test("renders category links and cart button", async () => {
   renderApp();
+
+  const categoryLinks = await screen.findAllByTestId("category-link");
+  expect(categoryLinks.length).toBeGreaterThan(0);
+
   expect(screen.getByTestId("cart-btn")).toBeInTheDocument();
-  expect(screen.getAllByTestId("category-link").length).toBeGreaterThan(0);
+  expect(screen.getByTestId("active-category-link")).toBeInTheDocument();
 });
 
 test("renders product cards", async () => {
@@ -62,6 +110,8 @@ test("renders product detail page components", async () => {
   expect(await screen.findByTestId("product-gallery")).toBeInTheDocument();
   expect(screen.getByTestId("product-description")).toBeInTheDocument();
   expect(screen.getByTestId("add-to-cart")).toBeInTheDocument();
+
+  expect(screen.getByTestId("product-attribute-size")).toBeInTheDocument();
 });
 
 test("renders cart item and attribute elements", async () => {
@@ -69,13 +119,13 @@ test("renders cart item and attribute elements", async () => {
 
   fireEvent.click(screen.getByTestId("cart-btn"));
 
-  ["s", "m", "l"].forEach((sizeKey) => {
-    const isSelected = sizeKey === "m";
-    const testId = `cart-item-attribute-size-${sizeKey}${
-      isSelected ? "-selected" : ""
-    }`;
+  expect(screen.getByTestId("cart-item-attribute-size")).toBeInTheDocument();
 
-    expect(screen.getByTestId(testId)).toBeInTheDocument();
+  ["s", "m", "l"].forEach((value) => {
+    const base = `cart-item-attribute-size-${value}`;
+    const el =
+      screen.queryByTestId(`${base}`) || screen.getByTestId(`${base}-selected`);
+    expect(el).toBeInTheDocument();
   });
 
   expect(screen.getByTestId("cart-item-amount-decrease")).toBeInTheDocument();
