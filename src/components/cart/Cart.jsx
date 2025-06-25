@@ -1,4 +1,6 @@
-import { useState, Fragment } from "react";
+import { useState, useRef, Fragment } from "react";
+import { createPortal } from "react-dom";
+
 import { useCart } from "../../context/CartContext";
 import {
   Dialog,
@@ -18,6 +20,7 @@ export const Cart = () => {
   const [open, setOpen] = useState(false);
   const { cartItems, removeFromCart, updateQty, updateAttributes, clearCart } =
     useCart();
+  const cartBtnRef = useRef(null);
 
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [orderId, setOrderId] = useState(null);
@@ -57,7 +60,7 @@ export const Cart = () => {
   return (
     <div>
       <button
-        aria-label="Cart Icon"
+        ref={cartBtnRef}
         data-testid="cart-btn"
         className="relative hover:text-green-500 cursor-pointer z-50"
         onClick={() => setOpen((prev) => !prev)}
@@ -70,41 +73,51 @@ export const Cart = () => {
         )}
       </button>
 
-      <Transition show={open} as={Fragment}>
-        <Dialog
-          as="div"
-          className="relative z-20"
-          open={open}
-          onClose={() => {}}
-          static
-        >
-          {/* Backdrop transition */}
-          <Transition.Child
-            as={Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
+      {createPortal(
+        <Transition show={open} as="div">
+          <Dialog
+            as="div"
+            className="relative z-20"
+            open={open}
+            onClose={(value) => {
+              if (
+                document.activeElement === cartBtnRef.current ||
+                cartBtnRef.current?.contains(document.activeElement)
+              ) {
+                return;
+              }
+              setOpen(value);
+            }}
+            static
           >
-            <DialogBackdrop className="fixed inset-0 bg-gray-500/75" />
-          </Transition.Child>
-          <div className="fixed inset-0 overflow-hidden">
-            <div className="absolute inset-0 overflow-hidden">
-              <Transition.Child
-                as={Fragment}
-                enter="transform transition ease-in-out duration-300"
-                enterFrom="-translate-y-full"
-                enterTo="translate-y-0"
-                leave="transform transition ease-in-out duration-300"
-                leaveFrom="translate-y-0"
-                leaveTo="-translate-y-full"
-              >
-                <div
-                  className="pointer-events-auto fixed lg:right-30 mt-19
-              h-[100dvh] sm:max-w-[500px] sm:h-[80vh] bg-white shadow-xl transform transition duration-500 ease-in-out "
+            {/* Backdrop transition */}
+            <Transition.Child
+              as="div"
+              enter="ease-out duration-300"
+              enterFrom="opacity-0"
+              enterTo="opacity-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+            >
+              <DialogBackdrop className="fixed inset-0 bg-gray-500/75" />
+            </Transition.Child>
+            <div className="fixed inset-0 overflow-hidden">
+              <div className="absolute inset-0 overflow-hidden">
+                <Transition.Child
+                  as="div"
+                  enter="transform transition ease-in-out duration-300"
+                  enterFrom="-translate-y-full"
+                  enterTo="translate-y-0"
+                  leave="transform transition ease-in-out duration-300"
+                  leaveFrom="translate-y-0"
+                  leaveTo="-translate-y-full"
+                  className="pointer-events-auto fixed lg:right-30  sm:max-w-[500px] sm:h-[80vh] w-screen max-w-[500px] overflow-hidden z-40"
                 >
+                  {/* <div
+                    className="pointer-events-auto fixed lg:right-30 mt-19
+               sm:max-w-[500px] sm:h-[80vh] bg-white shadow-xl transform transition duration-500 ease-in-out "
+                  > */}
                   <DialogPanel className="pointer-events-auto w-screen max-w-[500px] transform transition duration-500 ease-in-out mr-40">
                     {/* Height */}
                     <div className="flex h-[80vh] flex-col overflow-y-auto bg-white shadow-xl ">
@@ -335,93 +348,101 @@ export const Cart = () => {
                       </div>
                     </div>
                   </DialogPanel>
-                </div>
-              </Transition.Child>
+                  {/* </div> */}
+                </Transition.Child>
+              </div>
             </div>
-          </div>
-        </Dialog>
-      </Transition>
+          </Dialog>
+        </Transition>,
+        document.getElementById("cart-portal-root")
+      )}
 
-      <Transition show={showSuccessModal} as={Fragment}>
-        <Dialog
-          as="div"
-          className="fixed inset-0 z-30 flex items-center justify-center"
-          onClose={() => setShowSuccessModal(false)}
-        >
-          <Transition.Child
-            as={Fragment}
-            enter="ease-out duration-200"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-150"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
+      {createPortal(
+        <Transition show={showSuccessModal} as="div">
+          <Dialog
+            as="div"
+            className="fixed inset-0 z-30 flex items-center justify-center"
+            onClose={() => setShowSuccessModal(false)}
           >
-            <DialogBackdrop className="fixed inset-0 bg-gray-500/75" />
-          </Transition.Child>
+            <Transition.Child
+              as="div"
+              enter="ease-out duration-200"
+              enterFrom="opacity-0"
+              enterTo="opacity-100"
+              leave="ease-in duration-150"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+            >
+              <DialogBackdrop className="fixed inset-0 bg-gray-500/75" />
+            </Transition.Child>
 
-          <Transition.Child
-            as={Fragment}
-            enter="ease-out duration-200 transform"
-            enterFrom="opacity-0 scale-95"
-            enterTo="opacity-100 scale-100"
-            leave="ease-in duration-150 transform"
-            leaveFrom="opacity-100 scale-100"
-            leaveTo="opacity-0 scale-95"
-          >
-            <DialogPanel className="relative z-40 w-[90%] max-w-[360px] sm:max-w-md md:max-w-lg lg:max-w-xl bg-white rounded-xl p-6 sm:p-8 shadow-xl text-center">
-              <DialogTitle className="text-xl font-semibold text-green-600">
-                Order Placed Successfully!
-              </DialogTitle>
+            <Transition.Child
+              as="div"
+              enter="ease-out duration-200 transform"
+              enterFrom="opacity-0 scale-95"
+              enterTo="opacity-100 scale-100"
+              leave="ease-in duration-150 transform"
+              leaveFrom="opacity-100 scale-100"
+              leaveTo="opacity-0 scale-95"
+              className="fixed inset-0 flex items-center justify-center"
+            >
+              <DialogPanel className="relative w-full max-w-sm sm:max-w-md lg:max-w-lg bg-white rounded-xl p-6 sm:p-8 shadow-xl text-center">
+                <DialogTitle className="text-xl font-semibold text-green-600">
+                  Order Placed Successfully!
+                </DialogTitle>
 
-              {orderedItems.length > 0 && (
-                <div className="mt-4 text-left ">
-                  <p className="text-md font-bold text-black">Order Summary:</p>
-                  <ul className="mt-2 lg:max-h-100 max-h-50 overflow-y-auto text-sm text-gray-700 space-y-2">
-                    {orderedItems.map((item, idx) => (
-                      <li key={idx} className="pb-1 border-b border-gray-300">
-                        <div className="font-medium pt-4">{item.name}</div>
-                        <div className="pt-2 text-sm">
-                          Qty:{" "}
-                          <span className="font-medium">{item.quantity}</span>
-                        </div>
-                        <div className="text-sm">
-                          Price:{" "}
-                          <span className="font-medium">
-                            {item.price?.currency?.symbol}
-                            {(item.price?.amount * item.quantity).toFixed(2)}
-                          </span>
-                        </div>
-
-                        {item.selectedAttributes && (
-                          <div className="mt-2 space-y-1 text-sm text-black">
-                            {Object.entries(item.selectedAttributes).map(
-                              ([key, value]) => (
-                                <div key={key}>
-                                  {key}:{" "}
-                                  <span className="font-medium">{value}</span>
-                                </div>
-                              )
-                            )}
+                {orderedItems.length > 0 && (
+                  <div className="mt-4 text-left ">
+                    <p className="text-md font-bold text-black">
+                      Order Summary:
+                    </p>
+                    <ul className="mt-2 lg:max-h-100 max-h-50 overflow-y-auto text-sm text-gray-700 space-y-2">
+                      {orderedItems.map((item, idx) => (
+                        <li key={idx} className="pb-1 border-b border-gray-300">
+                          <div className="font-medium pt-4">{item.name}</div>
+                          <div className="pt-2 text-sm">
+                            Qty:{" "}
+                            <span className="font-medium">{item.quantity}</span>
                           </div>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+                          <div className="text-sm">
+                            Price:{" "}
+                            <span className="font-medium">
+                              {item.price?.currency?.symbol}
+                              {(item.price?.amount * item.quantity).toFixed(2)}
+                            </span>
+                          </div>
 
-              <button
-                aria-label="Close button"
-                onClick={() => setShowSuccessModal(false)}
-                className="mt-4 cursor-pointer bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-              >
-                Close
-              </button>
-            </DialogPanel>
-          </Transition.Child>
-        </Dialog>
-      </Transition>
+                          {item.selectedAttributes && (
+                            <div className="mt-2 space-y-1 text-sm text-black">
+                              {Object.entries(item.selectedAttributes).map(
+                                ([key, value]) => (
+                                  <div key={key}>
+                                    {key}:{" "}
+                                    <span className="font-medium">{value}</span>
+                                  </div>
+                                )
+                              )}
+                            </div>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                <button
+                  aria-label="Close button"
+                  onClick={() => setShowSuccessModal(false)}
+                  className="mt-4 cursor-pointer bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                >
+                  Close
+                </button>
+              </DialogPanel>
+            </Transition.Child>
+          </Dialog>
+        </Transition>,
+        document.getElementById("cart-portal-root")
+      )}
     </div>
   );
 };
