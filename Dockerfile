@@ -1,6 +1,3 @@
-# Use PHP 8.1 + Apache
-FROM php:8.1-apache
-
 # Install required PHP extensions and system packages
 RUN apt-get update && apt-get install -y \
     libzip-dev unzip git zip && \
