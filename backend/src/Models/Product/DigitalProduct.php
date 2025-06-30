@@ -11,6 +11,6 @@ class DigitalProduct extends Product
 
     public function getAttributes(): array
     {
-        return []; // digital product has no physical attributes
+        return []; 
     }
 }

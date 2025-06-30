@@ -4,16 +4,42 @@ namespace App\Config;
 
 use PDO;
 use PDOException;
+use Dotenv\Dotenv;
 
 class Database
 {
     private static ?PDO $connection = null;
 
-    public static function connect(): PDO
+    public static function connect(string $connectionType = 'awardspace'): PDO
     {
         if (self::$connection === null) {
+            // Load .env
+            $dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
+            $dotenv->load();
+
             try {
-                self::$connection = new PDO("mysql:host=localhost;dbname=ecommerce", "root", "");
+                if ($connectionType === 'localhost') {
+                    $host = $_ENV['DB_LOCAL_HOST'];
+                    $dbname = $_ENV['DB_LOCAL_NAME'];
+                    $username = $_ENV['DB_LOCAL_USER'];
+                    $password = $_ENV['DB_LOCAL_PASS'];
+                } elseif ($connectionType === 'infinityfree') {
+                    $host = $_ENV['DB_IF_HOST'];
+                    $dbname = $_ENV['DB_IF_NAME'];
+                    $username = $_ENV['DB_IF_USER'];
+                    $password = $_ENV['DB_IF_PASS'];
+                } else { // default: awardspace
+                    $host = $_ENV['DB_AS_HOST'];
+                    $dbname = $_ENV['DB_AS_NAME'];
+                    $username = $_ENV['DB_AS_USER'];
+                    $password = $_ENV['DB_AS_PASS'];
+                }
+
+                self::$connection = new PDO(
+                    "mysql:host=$host;dbname=$dbname;charset=utf8mb4",
+                    $username,
+                    $password
+                );
                 self::$connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
                 self::$connection->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
             } catch (PDOException $e) {
@@ -23,50 +49,4 @@ class Database
 
         return self::$connection;
     }
-
-    // InfinityFree
-//     public static function connect(): PDO
-// {
-//     if (self::$connection === null) {
-//         try {
-//             $host = 'sql107.infinityfree.com'; 
-//             $dbname = 'if0_39312241_ecommercedb'; 
-//             $username = 'if0_39312241'; 
-//             $password = 'Ev6HhnnuJ72K0y'; 
-
-//             self::$connection = new PDO(
-//                 "mysql:host=$host;port=3306;dbname=$dbname;charset=utf8mb4",
-//                 $username,
-//                 $password
-//             );
-//             self::$connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-//             self::$connection->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-//         } catch (PDOException $e) {
-//             die("Database connection failed: " . $e->getMessage());
-//         }
-//     }
-
-//     return self::$connection;
-// }
-
-
-    // public static function connect(): PDO
-    // {
-    //     if (self::$connection === null) {
-    //         try {
-    //             $host = 'fdb1033.awardspace.net'; 
-    //             $dbname = '4652023_ecommerce'; 
-    //             $username = '4652023_ecommerce'; 
-    //             $password = 'Dnd{{wU/7QER%4*A'; 
-
-    //             self::$connection = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
-    //             self::$connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    //             self::$connection->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-    //         } catch (PDOException $e) {
-    //             die("Database connection failed: " . $e->getMessage());
-    //         }
-    //     }
-
-    //     return self::$connection;
-    // }
 }
