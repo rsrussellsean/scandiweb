@@ -8,11 +8,12 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/api/categories.php`)
-      // fetch("/api/categories.php")
+    // fetch(`${import.meta.env.VITE_API_URL}/api/categories.php`)
+    fetch("/api/categories.php")
       .then((res) => res.json())
       .then((data) => {
         setCategories(data);
+        // console.log(data);
       })
       .catch((err) => console.error("Failed to fetch categories", err));
   }, []);

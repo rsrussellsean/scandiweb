@@ -18,8 +18,8 @@ const ProductItem = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/api/product.php?id=${id}`)
-      // fetch(`/api/product.php?id=${id}`)
+    // fetch(`${import.meta.env.VITE_API_URL}/api/product.php?id=${id}`)
+    fetch(`/api/product.php?id=${id}`)
       .then((res) => res.json())
       .then((data) => {
         setProduct(data);

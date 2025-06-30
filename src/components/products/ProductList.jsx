@@ -12,8 +12,8 @@ const ProductList = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/api/products.php`)
-      // fetch("/api/products.php")
+    // fetch(`${import.meta.env.VITE_API_URL}/api/products.php`)
+    fetch("/api/products.php")
       .then((res) => res.json())
       .then((data) => {
         // console.log("Fetched data:", data);

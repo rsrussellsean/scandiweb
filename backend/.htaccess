@@ -1,3 +1,32 @@
-RewriteEngine on
+<!-- RewriteEngine on
 RewriteRule .* /public/$0 [L]
+DirectoryIndex index.php -->
+
+<!-- # Enable URL rewriting
+
+RewriteEngine On
+
+# Send all non-existing files/dirs to index.php (for router use)
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [QSA,L]
+
+# Set default index file
+
+DirectoryIndex index.php -->
+
+RewriteEngine On
+
+# Rewrite /api/x to /api/x.php
+
+RewriteCond %{REQUEST_FILENAME}.php -f
+RewriteRule ^(api/[^/]+)$ $1.php [L]
+
+# Fallback for routing (e.g. /graphql)
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [QSA,L]
+
 DirectoryIndex index.php

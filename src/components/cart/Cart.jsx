@@ -1,5 +1,6 @@
 import { useState, useRef, Fragment } from "react";
 import { createPortal } from "react-dom";
+import "./Cart.css";
 
 import { useCart } from "../../context/CartContext";
 import {
@@ -28,17 +29,16 @@ export const Cart = () => {
 
   const handlePlaceOrder = async () => {
     try {
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/place_order.php`,
-        {
-          // const res = await fetch("/api/place_order.php", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ items: cartItems }),
-        }
-      );
+      // const res = await fetch(
+      //   `${import.meta.env.VITE_API_URL}/api/place_order.php`,
+      //   {
+      const res = await fetch("/api/place_order.php", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ items: cartItems }),
+      });
 
       const result = await res.json();
 
@@ -112,13 +112,14 @@ export const Cart = () => {
                   leave="transform transition ease-in-out duration-300"
                   leaveFrom="translate-y-0"
                   leaveTo="-translate-y-full"
-                  className="pointer-events-auto fixed lg:right-30  sm:max-w-[500px] sm:h-[80vh] w-screen max-w-[500px] overflow-hidden z-40"
+                  className="my-panel"
+                  // className="pointer-events-auto fixed right-0 xl:right-40 max-w-[500px] h-[100vh] w-screen overflow-hidden z-40"
                 >
                   {/* <div
                     className="pointer-events-auto fixed lg:right-30 mt-19
                sm:max-w-[500px] sm:h-[80vh] bg-white shadow-xl transform transition duration-500 ease-in-out "
                   > */}
-                  <DialogPanel className="pointer-events-auto w-screen max-w-[500px] transform transition duration-500 ease-in-out mr-40">
+                  <DialogPanel className="pointer-events-auto w-screen max-w-[500px] transform transition duration-500 ease-in-out mr-40 pt-19">
                     {/* Height */}
                     <div className="flex h-[80vh] flex-col overflow-y-auto bg-white shadow-xl ">
                       <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-6">

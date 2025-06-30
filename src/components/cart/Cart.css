@@ -1,0 +1,16 @@
+.my-panel {
+  pointer-events: auto;
+  position: fixed;
+  right: 0rem;
+  max-width: 500px;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  z-index: 40;
+}
+
+@media (min-width: 1440px) {
+  .my-panel {
+    right: 10rem;
+  }
+}

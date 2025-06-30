@@ -1,4 +1,6 @@
 <?php
+date_default_timezone_set('Asia/Manila');
+
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
@@ -36,8 +38,9 @@ try {
     }
 
     // Insert into orders
-    $stmt = $pdo->prepare("INSERT INTO orders (total_amount) VALUES (?)");
-    $stmt->execute([$total]);
+    $createdAt = date('Y-m-d H:i:s'); // Will now be in Asia/Manila timezone
+	$stmt = $pdo->prepare("INSERT INTO orders (total_amount, created_at) VALUES (?, ?)");
+	$stmt->execute([$total, $createdAt]);
     $orderId = $pdo->lastInsertId();
 
     // Insert each order item
