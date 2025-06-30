@@ -1,26 +1,26 @@
-# Start from PHP with Apache
+# Use PHP 8.1 + Apache
 FROM php:8.1-apache
 
-# Install required extensions and tools
+# Install required PHP extensions and system packages
 RUN apt-get update && apt-get install -y \
     libzip-dev unzip git zip && \
     docker-php-ext-install zip pdo pdo_mysql
 
-# Enable Apache mod_rewrite (for routing)
+# Enable Apache mod_rewrite
 RUN a2enmod rewrite
 
 # Set working directory
 WORKDIR /var/www/html
 
-# Copy all project files into the container
+# Copy project files into container
 COPY . .
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-RUN composer install
+RUN composer install --no-dev --optimize-autoloader
 
-# Fix permissions (optional)
+# Fix file permissions
 RUN chown -R www-data:www-data /var/www/html
 
-# Expose port 80 (Render auto-forwards to this)
+# Expose port 80
 EXPOSE 80
