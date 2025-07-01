@@ -18,9 +18,17 @@ import {
 } from "@heroicons/react/24/outline";
 
 export const Cart = () => {
-  const [open, setOpen] = useState(false);
-  const { cartItems, removeFromCart, updateQty, updateAttributes, clearCart } =
-    useCart();
+  // const [open, setOpen] = useState(false);
+
+  const {
+    cartItems,
+    removeFromCart,
+    updateQty,
+    updateAttributes,
+    clearCart,
+    isCartOpen,
+    setIsCartOpen,
+  } = useCart();
   const cartBtnRef = useRef(null);
 
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -46,7 +54,8 @@ export const Cart = () => {
         setOrderId(result.orderId);
         setOrderedItems(cartItems);
         setShowSuccessModal(true);
-        setOpen(false);
+        // setOpen(false);
+        setIsCartOpen(false);
         clearCart();
       } else {
         alert("Failed to place order: " + result.error);
@@ -63,7 +72,7 @@ export const Cart = () => {
         ref={cartBtnRef}
         data-testid="cart-btn"
         className="relative hover:text-green-500 cursor-pointer z-50"
-        onClick={() => setOpen((prev) => !prev)}
+        onClick={() => setIsCartOpen((prev) => !prev)}
       >
         <ShoppingCartIcon className="h-6 w-6" />
         {cartItems.reduce((acc, item) => acc + item.quantity, 0) > 0 && (
@@ -74,11 +83,11 @@ export const Cart = () => {
       </button>
 
       {createPortal(
-        <Transition show={open} as="div">
+        <Transition show={isCartOpen} as="div">
           <Dialog
             as="div"
             className="relative z-20"
-            open={open}
+            open={isCartOpen}
             onClose={(value) => {
               if (
                 document.activeElement === cartBtnRef.current ||
@@ -86,7 +95,7 @@ export const Cart = () => {
               ) {
                 return;
               }
-              setOpen(value);
+              setIsCartOpen(value);
             }}
             static
           >
@@ -119,7 +128,10 @@ export const Cart = () => {
                     className="pointer-events-auto fixed lg:right-30 mt-19
                sm:max-w-[500px] sm:h-[80vh] bg-white shadow-xl transform transition duration-500 ease-in-out "
                   > */}
-                  <DialogPanel className="pointer-events-auto w-screen max-w-[500px] transform transition duration-500 ease-in-out mr-40 pt-19">
+                  <DialogPanel
+                    data-testid="cart-overlay"
+                    className="pointer-events-auto w-screen max-w-[500px] transform transition duration-500 ease-in-out mr-40 pt-19"
+                  >
                     {/* Height */}
                     <div className="flex h-[80vh] flex-col overflow-y-auto bg-white shadow-xl ">
                       <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-6">
@@ -146,7 +158,7 @@ export const Cart = () => {
                             <button
                               aria-label="X button"
                               type="button"
-                              onClick={() => setOpen(false)}
+                              onClick={() => setIsCartOpen(false)}
                               className="cursor-pointer p-2 text-gray-400 hover:text-gray-500"
                             >
                               <XMarkIcon className="w-6 h-6" />

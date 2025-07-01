@@ -16,7 +16,7 @@ RewriteRule ^ index.php [QSA,L]
 
 DirectoryIndex index.php -->
 
-RewriteEngine On
+<!-- RewriteEngine On
 
 # Rewrite /api/x to /api/x.php
 
@@ -29,4 +29,11 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^ index.php [QSA,L]
 
-DirectoryIndex index.php
+DirectoryIndex index.php -->
+
+<!-- Render -->
+
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [QSA,L]

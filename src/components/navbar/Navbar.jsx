@@ -65,29 +65,30 @@ const Navbar = () => {
           {/* Desktop Navigation */}
           <ul className="hidden sm:flex space-x-4">
             {categories.map((cat) => (
-              <li key={cat.id} data-testid="category-link">
-                <NavLink
-                  to={
-                    cat.name.toLowerCase() === "all"
-                      ? "/"
-                      : `/category/${cat.name.toLowerCase()}`
-                  }
-                  end
-                >
-                  {({ isActive }) => (
-                    <span
-                      data-testid={
-                        isActive ? "active-category-link" : undefined
-                      }
-                      className={`underline-offset-4 decoration-green-500 decoration-2 hover:underline hover:text-green-500 ${
-                        isActive ? "underline text-green-500" : ""
-                      }`}
-                    >
-                      {cat.name.toUpperCase()}
-                    </span>
-                  )}
-                </NavLink>
-              </li>
+              <NavLink
+                data-testid="category-link"
+                key={cat.id}
+                to={
+                  cat.name.toLowerCase() === "all"
+                    ? "/all"
+                    : `/${cat.name.toLowerCase()}`
+                }
+              >
+                {({ isActive }) => (
+                  <li
+                    role="link"
+                    data-testid="category-link"
+                    {...(isActive && {
+                      "data-testid": "active-category-link",
+                    })}
+                    className={`block py-2 underline-offset-4 decoration-green-500 decoration-2 hover:underline hover:text-green-500 ${
+                      isActive ? "underline text-green-500" : "text-black"
+                    }`}
+                  >
+                    {cat.name.toUpperCase()}
+                  </li>
+                )}
+              </NavLink>
             ))}
           </ul>
         </div>
@@ -116,18 +117,23 @@ const Navbar = () => {
                 <NavLink
                   to={
                     cat.name.toLowerCase() === "all"
-                      ? "/"
-                      : `/category/${cat.name.toLowerCase()}`
-                  }
-                  className={({ isActive }) =>
-                    `block py-2 text-black hover:text-green-500 ${
-                      isActive ? "font-bold text-green-500" : ""
-                    }`
+                      ? "/all"
+                      : `/${cat.name.toLowerCase()}`
                   }
                   onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  {cat.name.toUpperCase()}
-                </NavLink>
+                  children={({ isActive }) => (
+                    <a
+                      data-testid={
+                        isActive ? "active-category-link" : "category-link"
+                      }
+                      className={`block py-2 text-black hover:text-green-500 ${
+                        isActive ? "font-bold text-green-500" : ""
+                      }`}
+                    >
+                      {cat.name.toUpperCase()}
+                    </a>
+                  )}
+                />
               </li>
             ))}
           </ul>

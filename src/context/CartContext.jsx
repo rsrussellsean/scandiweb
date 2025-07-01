@@ -9,6 +9,8 @@ export const CartProvider = ({ children, initialCartItems = [] }) => {
       : JSON.parse(localStorage.getItem("cartItems")) || [];
   });
 
+  const [isCartOpen, setIsCartOpen] = useState(false);
+
   useEffect(() => {
     localStorage.setItem("cartItems", JSON.stringify(cartItems));
   }, [cartItems]);
@@ -108,6 +110,8 @@ export const CartProvider = ({ children, initialCartItems = [] }) => {
         updateQty,
         updateAttributes,
         clearCart,
+        isCartOpen,
+        setIsCartOpen,
       }}
     >
       {children}

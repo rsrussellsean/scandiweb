@@ -12,7 +12,8 @@ const ProductItem = () => {
   // const product = productData.data.products.find((p) => p.id === id);
   const [currentImage, setCurrentImage] = useState(0);
   const [selectedAttributes, setSelectedAttributes] = useState({});
-  const { addToCart } = useCart();
+  // const { addToCart } = useCart();
+  const { addToCart, setIsCartOpen } = useCart();
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -80,6 +81,7 @@ const ProductItem = () => {
       selectedAttributes: attributesToCart,
       attributes: product.attributes,
     });
+    setIsCartOpen(true);
   };
 
   const allSelected = product.attributes.every(
@@ -165,6 +167,10 @@ const ProductItem = () => {
                         return (
                           <div
                             key={item.id}
+                            data-testid={`product-attribute-${attribute.name.toLowerCase()}-${item.displayValue.replace(
+                              /\s+/g,
+                              "-"
+                            )}`}
                             onClick={() =>
                               handleSelectAttribute(
                                 attribute.name,
