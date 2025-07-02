@@ -16,10 +16,20 @@ abstract class Product
     }
 
     abstract public function getType(): string;
-
-    public function getId(): string { return $this->id; }
-    public function getName(): string { return $this->name; }
-    public function getPrice(): float { return $this->price; }
-
     abstract public function getAttributes(): array;
+    abstract public function canBeShipped(): bool;
+    abstract public function calculateShippingCost(string $destination): float;
+
+    public function getId(): string
+    {
+        return $this->id;
+    }
+    public function getName(): string
+    {
+        return $this->name;
+    }
+    public function getPrice(): float
+    {
+        return $this->price;
+    }
 }

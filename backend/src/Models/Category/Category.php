@@ -24,4 +24,5 @@ abstract class Category
     }
 
     abstract public function toArray(): array;
+    abstract public function getApplicableAttributes(): array;
 }

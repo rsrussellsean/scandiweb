@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import Home from "./pages/Home";
 import ProductList from "./components/products/ProductList";
 import ProductItem from "./components/products/ProductItem";
@@ -11,7 +11,7 @@ function App() {
     <div className="container mx-auto">
       <Navbar />
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<Navigate to="/all" replace />} />
         <Route path="/all" element={<Home />} />
         <Route path="/:categoryName" element={<ProductList />} />
         <Route path="/product/:id" element={<ProductItem />} />

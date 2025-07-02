@@ -2,20 +2,22 @@
 
 namespace App\Models\Category;
 
-class GenericCategory extends Category
+class ClothesCategory extends Category
 {
     public function toArray(): array
     {
         return [
             'id' => $this->getId(),
             'name' => $this->getName(),
-            'type' => 'generic'
+            'type' => 'clothes',
+            'hasSize' => true,
+            'hasColor' => true,
+            'sizingGuide' => 'https://example.com/sizing-guide'
         ];
     }
 
     public function getApplicableAttributes(): array
     {
-        return []; // Generic categories have no specific attributes
+        return ['size', 'color', 'material'];
     }
 }
-

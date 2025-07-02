@@ -2,20 +2,22 @@
 
 namespace App\Models\Category;
 
-class GenericCategory extends Category
+class TechCategory extends Category
 {
     public function toArray(): array
     {
         return [
             'id' => $this->getId(),
             'name' => $this->getName(),
-            'type' => 'generic'
+            'type' => 'tech',
+            'hasWarranty' => true,
+            'warrantyPeriod' => '2 years',
+            'requiresSpecialHandling' => true
         ];
     }
 
     public function getApplicableAttributes(): array
     {
-        return []; // Generic categories have no specific attributes
+        return ['capacity', 'port', 'power'];
     }
 }
-

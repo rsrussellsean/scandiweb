@@ -1,11 +1,12 @@
-import { useEffect, useState } from "react";
-import { NavLink } from "react-router-dom";
+import { useEffect, useState, useRef } from "react";
+import { NavLink, useLocation } from "react-router-dom";
 import { Cart } from "../cart/Cart";
 import ShoppingBag from "../../assets/bag.svg";
 
 const Navbar = () => {
   const [categories, setCategories] = useState([]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
     // fetch(`${import.meta.env.VITE_API_URL}/api/categories.php`)
@@ -17,6 +18,28 @@ const Navbar = () => {
       })
       .catch((err) => console.error("Failed to fetch categories", err));
   }, []);
+
+  const CategoryNavLink = ({ to, children, onClick, className }) => {
+    const ref = useRef();
+    const isActive = location.pathname === to;
+
+    useEffect(() => {
+      if (ref.current) {
+        ref.current.setAttribute('data-testid', isActive ? 'active-category-link' : 'category-link');
+      }
+    }, [isActive]);
+
+    return (
+      <NavLink
+        ref={ref}
+        to={to}
+        onClick={onClick}
+        className={className}
+      >
+        {children}
+      </NavLink>
+    );
+  };
 
   return (
     <div className="w-full bg-white fixed top-0 left-0 z-50 shadow">
@@ -60,36 +83,26 @@ const Navbar = () => {
                 />
               </svg>
             </button>
-          </div>
-
+          </div>          
           {/* Desktop Navigation */}
           <ul className="hidden sm:flex space-x-4">
-            {categories.map((cat) => (
-              <NavLink
-                data-testid="category-link"
-                key={cat.id}
-                to={
-                  cat.name.toLowerCase() === "all"
-                    ? "/all"
-                    : `/${cat.name.toLowerCase()}`
-                }
-              >
-                {({ isActive }) => (
-                  <li
-                    role="link"
-                    data-testid="category-link"
-                    {...(isActive && {
-                      "data-testid": "active-category-link",
-                    })}
-                    className={`block py-2 underline-offset-4 decoration-green-500 decoration-2 hover:underline hover:text-green-500 ${
-                      isActive ? "underline text-green-500" : "text-black"
-                    }`}
+            {categories.map((cat) => {
+              const categoryPath = cat.name.toLowerCase() === "all" ? "/all" : `/${cat.name.toLowerCase()}`;
+              return (
+                <li key={cat.id}>
+                  <CategoryNavLink
+                    to={categoryPath}
+                    className={({ isActive }) => 
+                      `block py-2 underline-offset-4 decoration-green-500 decoration-2 hover:underline hover:text-green-500 ${
+                        isActive ? "underline text-green-500" : "text-black"
+                      }`
+                    }
                   >
                     {cat.name.toUpperCase()}
-                  </li>
-                )}
-              </NavLink>
-            ))}
+                  </CategoryNavLink>
+                </li>
+              );
+            })}
           </ul>
         </div>
 
@@ -106,34 +119,28 @@ const Navbar = () => {
         <div className="ml-auto pr-4">
           <Cart />
         </div>
-      </nav>
-
+      </nav>      
       {/* Mobile Menu Dropdown */}
       {isMobileMenuOpen && (
         <div id="mobile-menu" className="sm:hidden bg-white px-4 pb-4">
           <ul className="space-y-2">
             {categories.map((cat) => (
               <li key={cat.id}>
-                <NavLink
+                <CategoryNavLink
                   to={
                     cat.name.toLowerCase() === "all"
                       ? "/all"
                       : `/${cat.name.toLowerCase()}`
                   }
                   onClick={() => setIsMobileMenuOpen(false)}
-                  children={({ isActive }) => (
-                    <a
-                      data-testid={
-                        isActive ? "active-category-link" : "category-link"
-                      }
-                      className={`block py-2 text-black hover:text-green-500 ${
-                        isActive ? "font-bold text-green-500" : ""
-                      }`}
-                    >
-                      {cat.name.toUpperCase()}
-                    </a>
-                  )}
-                />
+                  className={({ isActive }) => 
+                    `block py-2 text-black hover:text-green-500 ${
+                      isActive ? "font-bold text-green-500" : ""
+                    }`
+                  }
+                >
+                  {cat.name.toUpperCase()}
+                </CategoryNavLink>
               </li>
             ))}
           </ul>
