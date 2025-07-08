@@ -76,9 +76,8 @@ const ProductList = () => {
                 .replace(/[^a-z0-9]+/g, "-")
                 .replace(/^-+|-+$/g, "")}`}
               className="relative group bg-white p-4 shadow-sm md:shadow-none md:hover:shadow-md transition-shadow duration-300 ease-in-out  "
-            >
-              {!product.inStock && (
-                <div className="absolute inset-0 flex items-center justify-center bg-white opacity-40 rounded-lg z-2 cursor-not-allowed">
+            >              {!product.inStock && (
+                <div className="absolute inset-0 flex items-center justify-center bg-white opacity-40 rounded-lg z-2 pointer-events-none">
                   <span className="text-black text-lg pb-20">OUT OF STOCK</span>
                 </div>
               )}
@@ -92,23 +91,23 @@ const ProductList = () => {
                   />
                 </Link>
 
-                <h3 className="mt-4 text-sm text-gray-700">{product.name}</h3>
-
+                <h3 className="mt-4 text-sm text-gray-700">{product.name}</h3>                
                 <div className="mt-1 flex items-center justify-between">
                   <p className="text-lg font-medium text-gray-900">
                     {product.prices[0].currency.symbol}
                     {product.prices[0].amount}
                   </p>
-                  <button
-                    aria-label="Shopping Cart Icon"
-                    onClick={() => addToCart(createDefaultProduct(product))}
-                    className="p-1 cursor-pointer rounded-full bg-green-500 text-white 
-             transition-opacity duration-300 
-             md:opacity-0 md:group-hover:opacity-100"
-                    disabled={!product.inStock}
-                  >
-                    <ShoppingCartIcon className="h-5 w-5" />
-                  </button>
+                  {product.inStock && (
+                    <button
+                      aria-label="Shopping Cart Icon"
+                      onClick={() => addToCart(createDefaultProduct(product))}
+                      className="p-1 cursor-pointer rounded-full bg-green-500 text-white 
+               transition-opacity duration-300 
+               md:opacity-0 md:group-hover:opacity-100"
+                    >
+                      <ShoppingCartIcon className="h-5 w-5" />
+                    </button>
+                  )}
                 </div>
               </div>
             </div>

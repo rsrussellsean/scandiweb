@@ -54,8 +54,12 @@ const ProductItem = () => {
       },
     }));
   };
-
   const handleAddToCart = () => {
+    // if (!product.inStock) {
+    //   alert("This product is currently out of stock and cannot be added to cart.");
+    //   return;
+    // }
+
     const allSelected = product.attributes.every(
       (attr) => selectedAttributes[attr.name]
     );
@@ -80,13 +84,14 @@ const ProductItem = () => {
       imageAlt: product.name,
       selectedAttributes: attributesToCart,
       attributes: product.attributes,
-    });
-    setIsCartOpen(true);
+    });    setIsCartOpen(true);
   };
 
   const allSelected = product.attributes.every(
     (attr) => selectedAttributes[attr.name]
   );
+
+  const isInStock = product.inStock;
 
   return (
     <div className="bg-white py-16 px-4 sm:px-6 lg:px-8 pt-30 overflow-x-hidden">
@@ -95,11 +100,11 @@ const ProductItem = () => {
         <div
           className="w-full lg:w-1/2 flex gap-4"
           data-testid="product-gallery"
-        >
-          {/* Thumbnails */}
+        >          
+        {/* Thumbnails */}
           <div
             className="flex flex-col gap-2 pt-5 overflow-y-auto scrollbar-hide"
-            style={{ maxHeight: "800px" }}
+            style={{ maxHeight: "600px", scrollbarWidth: "none" }}
           >
             {product.gallery.map((img, index) => (
               <img
@@ -111,6 +116,7 @@ const ProductItem = () => {
                 className={`w-16 h-16 object-cover rounded cursor-pointer border ${
                   currentImage === index ? "border-black" : "border-gray-300"
                 }`}
+                style={{ maxHeight: "80px" }}
               />
             ))}
           </div>
@@ -121,18 +127,19 @@ const ProductItem = () => {
               src={product.gallery[currentImage]}
               alt={product.name}
               className="rounded-lg object-contain h-full w-full"
+              style={{ maxHeight: "600px" }}
             />
             <button
               aria-label="Left Icon"
               onClick={prevImage}
-              className="absolute top-1/2 left-2 transform -translate-y-1/2 bg-black opacity-50 hover:opacity-80 text-white p-2"
+              className="cursor-pointer absolute top-1/2 left-2 transform -translate-y-1/2 bg-black opacity-50 hover:opacity-80 text-white p-2"
             >
               <ChevronLeftIcon className="w-6 h-6" />
             </button>
             <button
               aria-label="Right Icon"
               onClick={nextImage}
-              className="absolute top-1/2 right-2 transform -translate-y-1/2 bg-black opacity-50 hover:opacity-80 text-white p-2"
+              className="cursor-pointer absolute top-1/2 right-2 transform -translate-y-1/2 bg-black opacity-50 hover:opacity-80 text-white p-2"
             >
               <ChevronRightIcon className="w-6 h-6" />
             </button>
@@ -224,25 +231,32 @@ ${
             <p className="mt-4 text-sm font-bold">PRICE:</p>
             <p className="mt-2 text-xl text-black font-bold">
               {product.prices[0].currency.symbol}
-              {product.prices[0].amount}
-            </p>
-
-            {/* Add to Cart */}
+              {product.prices[0].amount.toFixed(2)}
+            </p>            {/* Add to Cart */}
             <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
+              {/* Out of Stock Message */}
+              {/* {!isInStock && (
+                <div className="mt-6 p-3 bg-red-100 border border-red-300 rounded-md">
+                  <p className="text-red-800 font-semibold text-sm">This product is currently out of stock</p>
+                </div>
+              )} */}
+              
               {/* Add to Cart */}
               <button
                 aria-label="Add To Cart button"
                 data-testid="add-to-cart"
                 className={`mt-10 px-6 py-3 text-white text-sm font-bold w-50 transition 
     ${
-      allSelected
+      !isInStock
+        ? "bg-gray-400 cursor-not-allowed"
+        : allSelected
         ? "bg-green-500 hover:bg-green-700 cursor-pointer"
         : "bg-gray-400 cursor-not-allowed"
     }`}
                 onClick={handleAddToCart}
-                disabled={!allSelected}
+                disabled={!allSelected || !isInStock}
               >
-                ADD TO CART
+                {!isInStock ? "OUT OF STOCK" : "ADD TO CART"}
               </button>
 
               {/* Description */}

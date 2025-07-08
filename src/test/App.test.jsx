@@ -11,6 +11,11 @@ afterEach(() => {
 });
 
 beforeAll(() => {
+  // Add cart portal root for testing
+  const portalRoot = document.createElement('div');
+  portalRoot.setAttribute('id', 'cart-portal-root');
+  document.body.appendChild(portalRoot);
+
   global.fetch = vi.fn((url) => {
     if (url.includes("categories.php")) {
       return Promise.resolve({
@@ -46,6 +51,11 @@ beforeAll(() => {
 
 afterAll(() => {
   global.fetch.mockRestore?.();
+  // Clean up portal root
+  const portalRoot = document.getElementById('cart-portal-root');
+  if (portalRoot) {
+    document.body.removeChild(portalRoot);
+  }
 });
 
 beforeEach(() => {

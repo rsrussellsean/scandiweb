@@ -130,7 +130,7 @@ export const Cart = () => {
                   > */}
                   <DialogPanel
                     data-testid="cart-overlay"
-                    className="pointer-events-auto w-screen max-w-[500px] transform transition duration-500 ease-in-out mr-40 pt-19"
+                    className="pointer-events-auto w-screen max-w-[500px] transform transition duration-500 ease-in-out mr-40 pt-20"
                   >
                     {/* Height */}
                     <div className="flex h-[80vh] flex-col overflow-y-auto bg-white shadow-xl ">
@@ -340,10 +340,10 @@ export const Cart = () => {
                           </p>
                         </div>
 
-                        <div className="mt-6">
-                          {cartItems.length === 0 ? (
+                        <div className="mt-6">                          {cartItems.length === 0 ? (
                             <button
                               aria-label="Place Order"
+                              data-testid="place-order-btn"
                               className="flex w-full items-center justify-center bg-gray-300 px-6 py-3 text-base font-medium text-white shadow-xs cursor-not-allowed disabled"
                             >
                               PLACE ORDER
@@ -351,6 +351,7 @@ export const Cart = () => {
                           ) : (
                             <button
                               aria-label="Place Order"
+                              data-testid="place-order-btn"
                               onClick={handlePlaceOrder}
                               className="flex w-full items-center justify-center  bg-green-500 px-6 py-3 text-base font-medium text-white shadow-xs hover:bg-green-600 cursor-pointer"
                             >
