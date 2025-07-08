@@ -6,7 +6,7 @@ A full-stack e-commerce application built with React frontend and PHP backend.
 
 - **Live Website**: https://heroic-treacle-6ef6d0.netlify.app/
 - **GitHub Repository**: https://github.com/yourusername/scandiweb-ecommerce
-- **API Documentation**: https://rsx.onlinewebshop.net/api/
+- **API Documentation**: https://rsx.onlinewebshop.net/api/products.php
 
 ## Tech Stack
 
