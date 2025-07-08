@@ -80,34 +80,31 @@ const ProductList = () => {
                 <div className="absolute inset-0 flex items-center justify-center bg-white opacity-40 rounded-lg z-2 pointer-events-none">
                   <span className="text-black text-lg pb-20">OUT OF STOCK</span>
                 </div>
-              )}
-
-              <div>
-                <Link to={`/product/${product.id}`}>
-                  <img
-                    alt={product.name}
-                    src={product.gallery[0]}
-                    className="aspect-square w-full rounded-lg bg-gray-200 object-cover xl:aspect-7/8"
-                  />
-                </Link>
-
-                <h3 className="mt-4 text-sm text-gray-700">{product.name}</h3>                
-                <div className="mt-1 flex items-center justify-between">
-                  <p className="text-lg font-medium text-gray-900">
-                    {product.prices[0].currency.symbol}
-                    {product.prices[0].amount}
-                  </p>
+              )}              <div>
+                <div className="relative">
+                  <Link to={`/product/${product.id}`}>
+                    <img
+                      alt={product.name}
+                      src={product.gallery[0]}
+                      className="aspect-square w-full rounded-lg bg-gray-200 object-cover xl:aspect-7/8 relative z-0"
+                    />
+                  </Link>
                   {product.inStock && (
                     <button
                       aria-label="Shopping Cart Icon"
-                      onClick={() => addToCart(createDefaultProduct(product))}
-                      className="p-1 cursor-pointer rounded-full bg-green-500 text-white 
-               transition-opacity duration-300 
-               md:opacity-0 md:group-hover:opacity-100"
+                      onClick={() => addToCart(createDefaultProduct(product))} className="absolute -bottom-6 right-2 p-2 cursor-pointer rounded-full bg-green-500 text-white transition-opacity duration-300 md:opacity-0 md:group-hover:opacity-100 shadow-lg z-10"
                     >
                       <ShoppingCartIcon className="h-5 w-5" />
                     </button>
                   )}
+                </div>
+
+                <h3 className="mt-4 text-sm text-gray-700">{product.name}</h3>                
+                <div className="mt-1">
+                  <p className="text-lg font-medium text-gray-900">
+                    {product.prices[0].currency.symbol}
+                    {product.prices[0].amount.toFixed(2)}
+                  </p>
                 </div>
               </div>
             </div>
