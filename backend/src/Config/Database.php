@@ -13,26 +13,35 @@ class Database
     public static function connect(string $connectionType = 'awardspace'): PDO
     {
         if (self::$connection === null) {
-            // Load .env
-            $dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
-            $dotenv->load();
-
             try {
-                if ($connectionType === 'localhost') {
-                    $host = $_ENV['DB_LOCAL_HOST'];
-                    $dbname = $_ENV['DB_LOCAL_NAME'];
-                    $username = $_ENV['DB_LOCAL_USER'];
-                    $password = $_ENV['DB_LOCAL_PASS'];
-                } elseif ($connectionType === 'infinityfree') {
-                    $host = $_ENV['DB_IF_HOST'];
-                    $dbname = $_ENV['DB_IF_NAME'];
-                    $username = $_ENV['DB_IF_USER'];
-                    $password = $_ENV['DB_IF_PASS'];
-                } else { // default: awardspace
-                    $host = $_ENV['DB_AS_HOST'];
-                    $dbname = $_ENV['DB_AS_NAME'];
-                    $username = $_ENV['DB_AS_USER'];
-                    $password = $_ENV['DB_AS_PASS'];
+                // Check if running on Heroku (JAWSDB_URL environment variable exists)
+                if (isset($_ENV['JAWSDB_URL']) || getenv('JAWSDB_URL')) {
+                    $url = parse_url(getenv('JAWSDB_URL'));
+                    $host = $url['host'];
+                    $dbname = ltrim($url['path'], '/');
+                    $username = $url['user'];
+                    $password = $url['pass'];
+                } else {
+                    // Load .env for local/other environments
+                    $dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
+                    $dotenv->load();
+
+                    if ($connectionType === 'localhost') {
+                        $host = $_ENV['DB_LOCAL_HOST'];
+                        $dbname = $_ENV['DB_LOCAL_NAME'];
+                        $username = $_ENV['DB_LOCAL_USER'];
+                        $password = $_ENV['DB_LOCAL_PASS'];
+                    } elseif ($connectionType === 'infinityfree') {
+                        $host = $_ENV['DB_IF_HOST'];
+                        $dbname = $_ENV['DB_IF_NAME'];
+                        $username = $_ENV['DB_IF_USER'];
+                        $password = $_ENV['DB_IF_PASS'];
+                    } else { // default: awardspace
+                        $host = $_ENV['DB_AS_HOST'];
+                        $dbname = $_ENV['DB_AS_NAME'];
+                        $username = $_ENV['DB_AS_USER'];
+                        $password = $_ENV['DB_AS_PASS'];
+                    }
                 }
 
                 self::$connection = new PDO(
