@@ -12,10 +12,29 @@ class OrderInputType extends InputObjectType
         parent::__construct([
             'name' => 'OrderInput',
             'fields' => [
-                'productId' => Type::nonNull(Type::id()),
+                'id' => Type::nonNull(Type::id()),
+                'name' => Type::string(),
                 'quantity' => Type::nonNull(Type::int()),
-                'price' => Type::nonNull(Type::float()),
-                'selectedAttributes' => Type::listOf(Type::string())
+                'price' => Type::nonNull(new InputObjectType([
+                    'name' => 'PriceInput',
+                    'fields' => [
+                        'amount' => Type::nonNull(Type::float()),
+                        'currency' => new InputObjectType([
+                            'name' => 'CurrencyInput',
+                            'fields' => [
+                                'label' => Type::string(),
+                                'symbol' => Type::string()
+                            ]
+                        ])
+                    ]
+                ])),
+                'selectedAttributes' => Type::listOf(new InputObjectType([
+                    'name' => 'SelectedAttributeInput',
+                    'fields' => [
+                        'name' => Type::string(),
+                        'value' => Type::string()
+                    ]
+                ]))
             ],
         ]);
     }

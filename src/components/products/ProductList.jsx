@@ -1,6 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
 import { useEffect, useState } from "react";
+import { fetchAllProducts } from "../../utils/graphqlClient";
 
 import { ShoppingCartIcon } from "@heroicons/react/24/outline";
 import Loading from "../Loading/Loading";
@@ -12,16 +13,13 @@ const ProductList = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // fetch(`${import.meta.env.VITE_API_URL}/api/products.php`)
-    fetch("/api/products.php")
-      .then((res) => res.json())
+    fetchAllProducts()
       .then((data) => {
-        // console.log("Fetched data:", data);
-        setProducts(data.data.products);
+        setProducts(data.products);
         setLoading(false);
       })
       .catch((err) => {
-        console.error("Fetch error:", err);
+        console.error("GraphQL fetch error:", err);
         setLoading(false);
       });
   }, []);

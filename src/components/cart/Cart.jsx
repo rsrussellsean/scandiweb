@@ -1,6 +1,7 @@
 import { useState, useRef, Fragment } from "react";
 import { createPortal } from "react-dom";
 import "./Cart.css";
+import { placeOrder } from "../../utils/graphqlClient";
 
 import { useCart } from "../../context/CartContext";
 import {
@@ -37,32 +38,21 @@ export const Cart = () => {
 
   const handlePlaceOrder = async () => {
     try {
-      // const res = await fetch(
-      //   `${import.meta.env.VITE_API_URL}/api/place_order.php`,
-      //   {
-      const res = await fetch("/api/place_order.php", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ items: cartItems }),
-      });
+      const result = await placeOrder(cartItems);
+      const orderData = JSON.parse(result.placeOrder);
 
-      const result = await res.json();
-
-      if (res.ok) {
-        setOrderId(result.orderId);
+      if (orderData.success) {
+        setOrderId(orderData.orderId);
         setOrderedItems(cartItems);
         setShowSuccessModal(true);
-        // setOpen(false);
         setIsCartOpen(false);
         clearCart();
       } else {
-        alert("Failed to place order: " + result.error);
+        alert("Failed to place order: " + orderData.error);
       }
     } catch (err) {
       console.error("Error placing order", err);
-      alert("Unexpected error placing order");
+      alert("Unexpected error placing order: " + err.message);
     }
   };
 

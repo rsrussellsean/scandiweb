@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import { useCart } from "../../context/CartContext";
+import { fetchProductById } from "../../utils/graphqlClient";
 import parse from "html-react-parser";
 
 // import productData from "../../json/data.json";
@@ -19,11 +20,9 @@ const ProductItem = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // fetch(`${import.meta.env.VITE_API_URL}/api/product.php?id=${id}`)
-    fetch(`/api/product.php?id=${id}`)
-      .then((res) => res.json())
+    fetchProductById(id)
       .then((data) => {
-        setProduct(data);
+        setProduct(data.product);
         setLoading(false);
       })
       .catch((err) => {
