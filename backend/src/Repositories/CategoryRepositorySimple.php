@@ -5,34 +5,19 @@ namespace App\Repositories;
 use App\Config\DatabaseSimple;
 use PDO;
 
-class CategoryRepository
+class CategoryRepositorySimple
 {
-    private ?PDO $pdo;
+    private PDO $pdo;
 
     public function __construct()
     {
-        try {
-            $this->pdo = DatabaseSimple::connect();
-        } catch (\Exception $e) {
-            // Fallback to mock data if database connection fails
-            $this->pdo = null;
-        }
+        $this->pdo = DatabaseSimple::connect();
     }
 
     public function getAll(): array
     {
-        // If database connection failed, return mock data
-        if ($this->pdo === null) {
-            return [
-                ['id' => '1', 'name' => 'clothes'],
-                ['id' => '2', 'name' => 'tech'],
-                ['id' => '3', 'name' => 'all']
-            ];
-        }
-
         $stmt = $this->pdo->prepare("SELECT * FROM categories");
         $stmt->execute();
-
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         $categories = [];
@@ -48,20 +33,8 @@ class CategoryRepository
 
     public function getById(string $id): ?array
     {
-        // If database connection failed, return mock data
-        if ($this->pdo === null) {
-            $mockCategories = $this->getAll();
-            foreach ($mockCategories as $category) {
-                if ($category['id'] === $id) {
-                    return $category;
-                }
-            }
-            return null;
-        }
-
         $stmt = $this->pdo->prepare("SELECT * FROM categories WHERE id = ?");
         $stmt->execute([$id]);
-
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$row) {

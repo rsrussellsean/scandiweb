@@ -17,31 +17,56 @@ beforeAll(() => {
   document.body.appendChild(portalRoot);
 
   global.fetch = vi.fn((url) => {
-    if (url.includes("categories.php")) {
+    if (url.includes("graphql.php")) {
       return Promise.resolve({
-        json: () =>
-          Promise.resolve([
-            { id: 1, name: "All" },
-            { id: 2, name: "Clothes" },
-            { id: 3, name: "Tech" },
-          ]),
-      });
-    }
-
-    if (url.includes("products.php")) {
-      return Promise.resolve({
-        json: () => Promise.resolve(productData),
-      });
-    }
-
-    if (url.includes("product.php?id=")) {
-      const id = url.split("id=")[1];
-      const product = productData.data.products.find(
-        (p) => p.id.toString() === id.toString()
-      );
-
-      return Promise.resolve({
-        json: () => Promise.resolve(product || null),
+        json: () => {
+          const body = JSON.parse(arguments[1]?.body || '{}');
+          const query = body.query || '';
+          
+          if (query.includes('categories')) {
+            return Promise.resolve({
+              data: {
+                categories: [
+                  { id: 1, name: "All" },
+                  { id: 2, name: "Clothes" },
+                  { id: 3, name: "Tech" },
+                ]
+              }
+            });
+          }
+          
+          if (query.includes('products') && !query.includes('product(')) {
+            return Promise.resolve({
+              data: {
+                products: productData.data.products
+              }
+            });
+          }
+          
+          if (query.includes('product(')) {
+            const variables = body.variables || {};
+            const id = variables.id;
+            const product = productData.data.products.find(
+              (p) => p.id.toString() === id.toString()
+            );
+            
+            return Promise.resolve({
+              data: {
+                product: product || null
+              }
+            });
+          }
+          
+          if (query.includes('placeOrder')) {
+            return Promise.resolve({
+              data: {
+                placeOrder: "Order placed successfully. Order ID: 12345"
+              }
+            });
+          }
+          
+          return Promise.resolve({ data: {} });
+        }
       });
     }
 

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GraphQL Test - localhost:8000</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        button { padding: 10px 15px; margin: 5px; background: #007cba; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #005a8b; }
+        #results { margin-top: 20px; padding: 15px; background: #f5f5f5; border-radius: 4px; white-space: pre-wrap; }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <h1>GraphQL Test Page</h1>
+    <p>Testing GraphQL endpoints on localhost:8000 with Awardspace database</p>
+    
+    <div>
+        <button onclick="testCategories()">Test Categories</button>
+        <button onclick="testProducts()">Test Products</button>
+        <button onclick="testSingleProduct()">Test Single Product</button>
+        <button onclick="testPlaceOrder()">Test Place Order</button>
+    </div>
+    
+    <div id="results">Click a button to test GraphQL endpoints...</div>
+
+    <script>
+        async function testGraphQL(query, variables = {}, operationName = '') {
+            try {
+                console.log('Testing GraphQL:', { query, variables });
+                
+                const response = await fetch('http://localhost:8000/backend/api/graphql.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        query,
+                        variables,
+                    }),
+                });
+                
+                const result = await response.json();
+                console.log('GraphQL Result:', result);
+                
+                document.getElementById('results').innerHTML = 
+                    `<div class="success">✅ ${operationName} Test Successful!</div>\n` +
+                    JSON.stringify(result, null, 2);
+                    
+            } catch (error) {
+                console.error('GraphQL Error:', error);
+                document.getElementById('results').innerHTML = 
+                    `<div class="error">❌ ${operationName} Test Failed!</div>\n` +
+                    `Error: ${error.message}`;
+            }
+        }
+
+        function testCategories() {
+            const query = `
+                query GetCategories {
+                    categories {
+                        name
+                    }
+                }
+            `;
+            testGraphQL(query, {}, 'Categories');
+        }
+
+        function testProducts() {
+            const query = `
+                query GetProducts {
+                    products {
+                        id
+                        name
+                        inStock
+                        category
+                        brand
+                        prices {
+                            currency {
+                                symbol
+                            }
+                            amount
+                        }
+                    }
+                }
+            `;
+            testGraphQL(query, {}, 'Products');
+        }
+
+        function testSingleProduct() {
+            // You may need to replace this with an actual product ID from your database
+            const productId = prompt('Enter a product ID to test (or leave blank for default):') || 'huarache-x-stussy-le';
+            
+            const query = `
+                query GetProduct($id: ID!) {
+                    product(id: $id) {
+                        id
+                        name
+                        description
+                        inStock
+                        category
+                        brand
+                        gallery
+                    }
+                }
+            `;
+            testGraphQL(query, { id: productId }, `Single Product (ID: ${productId})`);
+        }
+
+        function testPlaceOrder() {
+            const query = `
+                mutation PlaceOrder($items: [OrderInputType!]!) {
+                    placeOrder(items: $items)
+                }
+            `;
+            
+            const variables = {
+                items: [
+                    {
+                        productId: "huarache-x-stussy-le",
+                        quantity: 1,
+                        price: 144.69,
+                        selectedAttributes: ["size:40", "color:green"]
+                    }
+                ]
+            };
+            
+            testGraphQL(query, variables, 'Place Order');
+        }
+
+        // Test connection on page load
+        window.onload = function() {
+            document.getElementById('results').innerHTML = 
+                '<div>Page loaded! Ready to test GraphQL endpoints.</div>\n' +
+                '<div>Backend URL: http://localhost:8000/backend/api/graphql.php</div>';
+        };
+    </script>
+</body>
+</html>

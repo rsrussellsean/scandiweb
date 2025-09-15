@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { Cart } from "../cart/Cart";
+import { graphqlRequest, GET_CATEGORIES } from "../../utils/graphql";
 import ShoppingBag from "../../assets/bag.svg";
 
 const Navbar = () => {
@@ -9,14 +10,16 @@ const Navbar = () => {
   const location = useLocation();
 
   useEffect(() => {
-    // fetch(`${import.meta.env.VITE_API_URL}/api/categories.php`)
-    fetch("/api/categories.php")
-      .then((res) => res.json())
-      .then((data) => {
-        setCategories(data);
-        // console.log(data);
-      })
-      .catch((err) => console.error("Failed to fetch categories", err));
+    const fetchCategories = async () => {
+      try {
+        const data = await graphqlRequest(GET_CATEGORIES);
+        setCategories(data.categories);
+      } catch (err) {
+        console.error("Failed to fetch categories:", err);
+      }
+    };
+
+    fetchCategories();
   }, []);
 
   const CategoryNavLink = ({ to, children, onClick, className }) => {

@@ -1,26 +1,41 @@
 <?php
-header("Access-Control-Allow-Origin: *");
-header("Content-Type: application/json");
+// filepath: c:\Users\russell.s.gonzalve\Documents\scandiweb_revision\scandi2\scandiweb\backend\api\product.php
 
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../src/Config/Database.php';
-require_once __DIR__ . '/../src/Repositories/ProductRepository.php';
+header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET');
+header('Access-Control-Allow-Headers: Content-Type');
+
+require_once '../autoload.php';
 
 use App\Repositories\ProductRepository;
 
-if (!isset($_GET['id'])) {
-    http_response_code(400);
-    echo json_encode(["error" => "Missing product ID"]);
-    exit;
+try {
+    if (!isset($_GET['id'])) {
+        throw new Exception('Product ID is required');
+    }
+
+    $productRepository = new ProductRepository();
+    $product = $productRepository->getProductById($_GET['id']);
+
+    if (!$product) {
+        http_response_code(404);
+        echo json_encode([
+            'success' => false,
+            'error' => 'Product not found'
+        ]);
+        return;
+    }
+
+    echo json_encode([
+        'success' => true,
+        'data' => $product
+    ]);
+
+} catch (Exception $e) {
+    http_response_code(500);
+    echo json_encode([
+        'success' => false,
+        'error' => $e->getMessage()
+    ]);
 }
-
-$repo = new ProductRepository();
-$product = $repo->getById($_GET['id']);
-
-if (!$product) {
-    http_response_code(404);
-    echo json_encode(["error" => "Product not found"]);
-    exit;
-}
-
-echo json_encode($product);

@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import { useCart } from "../../context/CartContext";
+import { graphqlRequest, GET_PRODUCT_BY_ID } from "../../utils/graphql";
 import parse from "html-react-parser";
 
 // import productData from "../../json/data.json";
@@ -19,17 +20,18 @@ const ProductItem = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // fetch(`${import.meta.env.VITE_API_URL}/api/product.php?id=${id}`)
-    fetch(`/api/product.php?id=${id}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setProduct(data);
+    const fetchProduct = async () => {
+      try {
+        const data = await graphqlRequest(GET_PRODUCT_BY_ID, { id });
+        setProduct(data.product);
         setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Failed to fetch product", err);
+      } catch (err) {
+        console.error("Failed to fetch product:", err);
         setLoading(false);
-      });
+      }
+    };
+
+    fetchProduct();
   }, [id]);
 
   if (loading) return <Loading />;

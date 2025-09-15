@@ -1,70 +1,46 @@
 <?php
-date_default_timezone_set('Asia/Manila');
+// filepath: c:\Users\russell.s.gonzalve\Documents\scandiweb_revision\scandi2\scandiweb\backend\api\place_order.php
 
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: POST, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
+header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit;
+    exit(0);
 }
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(['error' => 'Only POST method is allowed']);
-    exit;
-}
+require_once '../autoload.php';
 
-
-require_once __DIR__ . '/../src/Config/Database.php';
-
-$pdo = \App\Config\Database::connect();
-$data = json_decode(file_get_contents("php://input"), true);
-
-if (!$data || empty($data['items']) || !is_array($data['items'])) {
-    http_response_code(400);
-    echo json_encode(['error' => 'Invalid order data']);
-    exit;
-}
+use App\Repositories\OrderRepository;
 
 try {
-    $pdo->beginTransaction();
-
-    // Compute total
-    $total = 0;
-    foreach ($data['items'] as $item) {
-        $total += $item['price']['amount'] * $item['quantity'];
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        throw new Exception('Only POST method allowed');
     }
 
-    // Insert into orders
-    $createdAt = date('Y-m-d H:i:s'); // Will now be in Asia/Manila timezone
-	$stmt = $pdo->prepare("INSERT INTO orders (total_amount, created_at) VALUES (?, ?)");
-	$stmt->execute([$total, $createdAt]);
-    $orderId = $pdo->lastInsertId();
+    $input = json_decode(file_get_contents('php://input'), true);
 
-    // Insert each order item
-    $stmt = $pdo->prepare("
-        INSERT INTO order_items 
-        (order_id, product_id, quantity, price, selected_attributes) 
-        VALUES (?, ?, ?, ?, ?)
-    ");
+    if (!isset($input['items']) || !is_array($input['items'])) {
+        throw new Exception('Items array is required');
+    }
 
-    foreach ($data['items'] as $item) {
-        $stmt->execute([
-            $orderId,
-            $item['id'],
-            $item['quantity'],
-            $item['price']['amount'],
-            json_encode($item['selectedAttributes'])
+    $orderRepository = new OrderRepository();
+    $success = $orderRepository->createOrder($input['items']);
+
+    if ($success) {
+        echo json_encode([
+            'success' => true,
+            'message' => 'Order placed successfully'
         ]);
+    } else {
+        throw new Exception('Failed to create order');
     }
 
-    $pdo->commit();
-
-    echo json_encode(['success' => true, 'orderId' => $orderId]);
 } catch (Exception $e) {
-    $pdo->rollBack();
     http_response_code(500);
-    echo json_encode(['error' => 'Order failed: ' . $e->getMessage()]);
+    echo json_encode([
+        'success' => false,
+        'error' => $e->getMessage()
+    ]);
 }

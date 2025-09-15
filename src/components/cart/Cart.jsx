@@ -1,6 +1,7 @@
 import { useState, useRef, Fragment } from "react";
 import { createPortal } from "react-dom";
 import "./Cart.css";
+import { graphqlRequest, PLACE_ORDER } from "../../utils/graphql";
 
 import { useCart } from "../../context/CartContext";
 import {
@@ -37,28 +38,31 @@ export const Cart = () => {
 
   const handlePlaceOrder = async () => {
     try {
-      // const res = await fetch(
-      //   `${import.meta.env.VITE_API_URL}/api/place_order.php`,
-      //   {
-      const res = await fetch("/api/place_order.php", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ items: cartItems }),
-      });
+      // Prepare order items for GraphQL mutation
+      const orderItems = cartItems.map(item => ({
+        productId: item.id,
+        quantity: item.quantity,
+        price: item.price.amount,
+        selectedAttributes: Object.entries(item.selectedAttributes || {}).map(
+          ([key, value]) => `${key}:${value}`
+        )
+      }));
 
-      const result = await res.json();
-
-      if (res.ok) {
-        setOrderId(result.orderId);
+      const data = await graphqlRequest(PLACE_ORDER, { items: orderItems });
+      
+      if (data.placeOrder) {
+        // Extract order ID from the response message
+        const orderIdMatch = data.placeOrder.match(/Order ID: (\d+)/);
+        const orderId = orderIdMatch ? orderIdMatch[1] : null;
+        
+        setOrderId(orderId);
         setOrderedItems(cartItems);
         setShowSuccessModal(true);
         // setOpen(false);
         setIsCartOpen(false);
         clearCart();
       } else {
-        alert("Failed to place order: " + result.error);
+        alert("Failed to place order");
       }
     } catch (err) {
       console.error("Error placing order", err);
