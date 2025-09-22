@@ -38,3 +38,4 @@ class DatabaseSimple
         return self::$connection;
     }
 }
+
