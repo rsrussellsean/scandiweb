@@ -26,7 +26,7 @@ try {
 use FastRoute\RouteCollector;
 use App\Controller\GraphQL;
 
-$dispatcher = FastRoute\simpleDispatcher(function(RouteCollector $r) {
+$dispatcher = FastRoute\simpleDispatcher(function (RouteCollector $r) {
     $r->post('/graphql', [GraphQL::class, 'handle']);
     $r->addRoute(['GET', 'POST'], '/api/graphql.php', [GraphQL::class, 'handle']);
 });
