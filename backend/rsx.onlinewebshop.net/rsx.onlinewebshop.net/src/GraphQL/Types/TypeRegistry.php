@@ -12,19 +12,22 @@ class TypeRegistry
     private static ?InputObjectType $orderInput = null;
     private static ?ObjectType $product = null;
     private static ?ObjectType $category = null;
+    private static ?ObjectType $orderResponse = null;
 
     public static function orderInput(): InputObjectType
     {
-    if (self::$orderInput) return self::$orderInput;
+        if (self::$orderInput)
+            return self::$orderInput;
 
-    self::$orderInput = new OrderInputType();
+        self::$orderInput = new OrderInputType();
 
-    return self::$orderInput;
+        return self::$orderInput;
     }
 
     public static function product(): ObjectType
     {
-        if (self::$product) return self::$product;
+        if (self::$product)
+            return self::$product;
 
         self::$product = new ObjectType([
             'name' => 'Product',
@@ -73,7 +76,8 @@ class TypeRegistry
 
     public static function category(): ObjectType
     {
-        if (self::$category) return self::$category;
+        if (self::$category)
+            return self::$category;
 
         self::$category = new ObjectType([
             'name' => 'Category',
@@ -84,5 +88,24 @@ class TypeRegistry
         ]);
 
         return self::$category;
+    }
+
+    public static function orderResponse(): ObjectType
+    {
+        if (self::$orderResponse)
+            return self::$orderResponse;
+
+        self::$orderResponse = new ObjectType([
+            'name' => 'OrderResponse',
+            'fields' => [
+                'orderId' => Type::nonNull(Type::string()),
+                'status' => Type::nonNull(Type::string()),
+                'message' => Type::nonNull(Type::string()),
+                'totalAmount' => Type::nonNull(Type::float()),
+                'itemCount' => Type::nonNull(Type::int()),
+            ]
+        ]);
+
+        return self::$orderResponse;
     }
 }

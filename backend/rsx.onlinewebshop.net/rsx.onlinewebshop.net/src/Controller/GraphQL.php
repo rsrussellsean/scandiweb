@@ -16,62 +16,87 @@ use App\Repositories\CategoryRepository;
 
 
 
-class GraphQL {
-    static public function handle() {
+class GraphQL
+{
+    static public function handle()
+    {
         try {
 
-        $queryType = new ObjectType([
-            'name' => 'Query',
-            'fields' => [
-                'products' => [
-                    'type' => Type::listOf(TypeRegistry::product()),
-                    'resolve' => function () {
-                        $repo = new ProductRepository();
-                        return $repo->getAll();
-                    }
-                ],
-                'categories' => [
-                    'type' => Type::listOf(TypeRegistry::category()),
-                    'resolve' => function () {
-                        $repo = new CategoryRepository();
-                        return $repo->getAll(); // This now dynamically fetches from DB
-                    }
-                ]
-            ]
-        ]);
-
-        
-           $mutationType = new ObjectType([
-            'name' => 'Mutation',
-            'fields' => [
-                'placeOrder' => [
-                    'type' => Type::string(), // You can replace this later with a more detailed return type
-                    'args' => [
-                        'items' => Type::nonNull(Type::listOf(TypeRegistry::orderInput()))
+            $queryType = new ObjectType([
+                'name' => 'Query',
+                'fields' => [
+                    'products' => [
+                        'type' => Type::listOf(TypeRegistry::product()),
+                        'resolve' => function () {
+                            $repo = new ProductRepository();
+                            return $repo->getAll();
+                        }
                     ],
-                    'resolve' => function ($root, $args) {
-                        return OrderMutation::placeOrder($args['items']);
-                    }
+                    'product' => [
+                        'type' => TypeRegistry::product(),
+                        'args' => [
+                            'id' => Type::nonNull(Type::id())
+                        ],
+                        'resolve' => function ($root, $args) {
+                            $repo = new ProductRepository();
+                            return $repo->getById($args['id']);
+                        }
+                    ],
+                    'productsByCategory' => [
+                        'type' => Type::listOf(TypeRegistry::product()),
+                        'args' => [
+                            'category' => Type::nonNull(Type::string())
+                        ],
+                        'resolve' => function ($root, $args) {
+                            $repo = new ProductRepository();
+                            if ($args['category'] === 'all') {
+                                return $repo->getAll();
+                            }
+                            return $repo->getByCategoryName($args['category']);
+                        }
+                    ],
+                    'categories' => [
+                        'type' => Type::listOf(TypeRegistry::category()),
+                        'resolve' => function () {
+                            $repo = new CategoryRepository();
+                            return $repo->getAll(); // This now dynamically fetches from DB
+                        }
+                    ]
                 ]
-            ],
-        ]);
-        
-          
+            ]);
+
+
+            $mutationType = new ObjectType([
+                'name' => 'Mutation',
+                'fields' => [
+                    'placeOrder' => [
+                        'type' => TypeRegistry::orderResponse(),
+                        'args' => [
+                            'items' => Type::nonNull(Type::listOf(TypeRegistry::orderInput()))
+                        ],
+                        'resolve' => function ($root, $args) {
+                            return OrderMutation::placeOrder($args['items']);
+                        }
+                    ]
+                ],
+            ]);
+
+
             $schema = new Schema(
                 (new SchemaConfig())
-                ->setQuery($queryType)
-                ->setMutation($mutationType)
+                    ->setQuery($queryType)
+                    ->setMutation($mutationType)
             );
-        
+
             $rawInput = file_get_contents('php://input');
             if ($rawInput === false) {
                 throw new RuntimeException('Failed to get php://input');
             }
-        
+
             $input = json_decode($rawInput, true);
             $query = $input['query'];
             $variableValues = $input['variables'] ?? null;
-        
+
             $rootValue = ['prefix' => 'You said: '];
             $result = GraphQLBase::executeQuery($schema, $query, $rootValue, null, $variableValues);
             $output = $result->toArray();

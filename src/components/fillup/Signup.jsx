@@ -1,6 +1,8 @@
 import React, { useState, Fragment } from "react";
 import { createPortal } from "react-dom";
 import { Dialog, Transition } from "@headlessui/react";
+import { useMutation } from "@apollo/client";
+import { PLACE_ORDER } from "../../graphql/mutations";
 
 const SignupPage = ({ cartItems, setOrderId, setIsCartOpen, clearCart }) => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -28,25 +30,37 @@ const SignupPage = ({ cartItems, setOrderId, setIsCartOpen, clearCart }) => {
     }));
   };
 
+  // GraphQL mutation for placing orders
+  const [placeOrderMutation, { loading: orderLoading }] = useMutation(PLACE_ORDER, {
+    onCompleted: (data) => {
+      const orderResponse = data.placeOrder;
+      setOrderId(orderResponse.orderId);
+      setOrderedItems(cartItems);
+      setShowSuccessModal(true);
+      setIsCartOpen(false);
+      clearCart();
+    },
+    onError: (error) => {
+      console.error("GraphQL error:", error);
+      alert("Failed to place order: " + error.message);
+    }
+  });
+
   const handlePlaceOrder = async () => {
     try {
-      const res = await fetch("/api/place_order.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items: cartItems }),
+      // Prepare order items in the expected format
+      const orderItems = cartItems.map(item => ({
+        productId: item.id,
+        quantity: item.quantity,
+        price: item.price,
+        selectedAttributes: item.selectedAttributes || {}
+      }));
+
+      await placeOrderMutation({
+        variables: {
+          items: orderItems
+        }
       });
-
-      const result = await res.json();
-
-      if (res.ok) {
-        setOrderId(result.orderId);
-        setOrderedItems(cartItems); // your parent state
-        setShowSuccessModal(true);
-        setIsCartOpen(false);
-        clearCart();
-      } else {
-        alert("Failed to place order: " + result.error);
-      }
     } catch (err) {
       console.error("Error placing order", err);
       alert("Unexpected error placing order");

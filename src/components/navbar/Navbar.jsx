@@ -1,20 +1,25 @@
 import { useEffect, useState, useRef } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { useQuery } from "@apollo/client";
+import { GET_ALL_CATEGORIES } from "../../graphql/queries";
 import { Cart } from "../cart/Cart";
 import ShoppingBag from "../../assets/bag.svg";
 
 export default function Navbar({ loggedIn, onLogout }) {
-  const [categories, setCategories] = useState([]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetch("/api/categories.php")
-      .then((res) => res.json())
-      .then((data) => setCategories(data))
-      .catch((err) => console.error("Failed to fetch categories", err));
-  }, []);
+  const { data, loading, error } = useQuery(GET_ALL_CATEGORIES, {
+    errorPolicy: 'all'
+  });
+
+  // Get categories from GraphQL response, provide fallback
+  const categories = data?.categories || [];
+
+  if (error) {
+    console.error("Failed to fetch categories", error);
+  }
 
   const CategoryNavLink = ({ to, children, onClick, className }) => {
     const ref = useRef();

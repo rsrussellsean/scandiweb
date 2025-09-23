@@ -1,38 +1,37 @@
 import { useParams } from "react-router-dom";
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { useCart } from "../../context/CartContext";
+import { useQuery } from "@apollo/client";
+import { GET_PRODUCT_BY_ID } from "../../graphql/queries";
 import parse from "html-react-parser";
 
-// import productData from "../../json/data.json";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
 import Loading from "../Loading/Loading";
 
 const ProductItem = () => {
   const { id } = useParams();
-  // const product = productData.data.products.find((p) => p.id === id);
   const [currentImage, setCurrentImage] = useState(0);
   const [selectedAttributes, setSelectedAttributes] = useState({});
-  // const { addToCart } = useCart();
   const { addToCart, setIsCartOpen } = useCart();
 
-  const [product, setProduct] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { data, loading, error } = useQuery(GET_PRODUCT_BY_ID, {
+    variables: { id },
+    errorPolicy: 'all'
+  });
 
-  useEffect(() => {
-    // fetch(`${import.meta.env.VITE_API_URL}/api/product.php?id=${id}`)
-    fetch(`/api/product.php?id=${id}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setProduct(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Failed to fetch product", err);
-        setLoading(false);
-      });
-  }, [id]);
+  // Handle error state
+  if (error) {
+    console.error("GraphQL error:", error);
+    return (
+      <div className="text-center mt-20">
+        <p className="text-red-500">Error loading product. Please try again.</p>
+      </div>
+    );
+  }
 
   if (loading) return <Loading />;
+  
+  const product = data?.product;
   if (!product) return <p>Product not found</p>;
 
   const nextImage = () => {

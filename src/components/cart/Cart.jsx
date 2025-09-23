@@ -4,6 +4,8 @@ import "./Cart.css";
 import { useNavigate } from "react-router-dom"; // <--- import this
 
 import { useCart } from "../../context/CartContext";
+import { useMutation } from "@apollo/client";
+import { PLACE_ORDER } from "../../graphql/mutations";
 import {
   Dialog,
   DialogBackdrop,
@@ -37,31 +39,37 @@ export const Cart = () => {
   const [orderId, setOrderId] = useState(null);
   const [orderedItems, setOrderedItems] = useState([]);
 
+  // GraphQL mutation for placing orders
+  const [placeOrderMutation, { loading: orderLoading }] = useMutation(PLACE_ORDER, {
+    onCompleted: (data) => {
+      const orderResponse = data.placeOrder;
+      setOrderId(orderResponse.orderId);
+      setOrderedItems(cartItems);
+      setShowSuccessModal(true);
+      setIsCartOpen(false);
+      clearCart();
+    },
+    onError: (error) => {
+      console.error("GraphQL error:", error);
+      alert("Failed to place order: " + error.message);
+    }
+  });
+
   const handlePlaceOrder = async () => {
     try {
-      // const res = await fetch(
-      //   `${import.meta.env.VITE_API_URL}/api/place_order.php`,
-      //   {
-      const res = await fetch("/api/place_order.php", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ items: cartItems }),
+      // Prepare order items in the expected format
+      const orderItems = cartItems.map(item => ({
+        productId: item.id,
+        quantity: item.quantity,
+        price: item.price,
+        selectedAttributes: item.selectedAttributes || {}
+      }));
+
+      await placeOrderMutation({
+        variables: {
+          items: orderItems
+        }
       });
-
-      const result = await res.json();
-
-      if (res.ok) {
-        setOrderId(result.orderId);
-        setOrderedItems(cartItems);
-        setShowSuccessModal(true);
-        // setOpen(false);
-        setIsCartOpen(false);
-        clearCart();
-      } else {
-        alert("Failed to place order: " + result.error);
-      }
     } catch (err) {
       console.error("Error placing order", err);
       alert("Unexpected error placing order");

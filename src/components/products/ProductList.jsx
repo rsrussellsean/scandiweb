@@ -1,6 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
-import { useEffect, useState } from "react";
+import { useQuery } from "@apollo/client";
+import { GET_ALL_PRODUCTS, GET_PRODUCTS_BY_CATEGORY } from "../../graphql/queries";
 
 import { ShoppingCartIcon } from "@heroicons/react/24/outline";
 import Loading from "../Loading/Loading";
@@ -8,31 +9,34 @@ import Loading from "../Loading/Loading";
 const ProductList = () => {
   const { addToCart } = useCart();
   const { categoryName } = useParams();
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // fetch(`${import.meta.env.VITE_API_URL}/api/products.php`)
-    fetch("/api/products.php")
-      .then((res) => res.json())
-      .then((data) => {
-        // console.log("Fetched data:", data);
-        setProducts(data.data.products);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Fetch error:", err);
-        setLoading(false);
-      });
-  }, []);
+  // Determine which query to use and variables
+  const isAllProducts = !categoryName || categoryName === "all";
+  
+  const { 
+    data, 
+    loading, 
+    error 
+  } = useQuery(
+    isAllProducts ? GET_ALL_PRODUCTS : GET_PRODUCTS_BY_CATEGORY,
+    {
+      variables: isAllProducts ? {} : { category: categoryName },
+      errorPolicy: 'all'
+    }
+  );
 
-  const filteredProducts =
-    !categoryName || categoryName === "all"
-      ? products
-      : products.filter(
-          (product) =>
-            product.category?.toLowerCase() === categoryName.toLowerCase()
-        );
+  // Handle error state
+  if (error) {
+    console.error("GraphQL error:", error);
+    return (
+      <div className="text-center mt-20">
+        <p className="text-red-500">Error loading products. Please try again.</p>
+      </div>
+    );
+  }
+
+  // Get products from GraphQL response
+  const products = isAllProducts ? data?.products || [] : data?.productsByCategory || [];
 
   const getHeading = () => {
     if (!categoryName || categoryName === "all") return "All";
@@ -61,14 +65,14 @@ const ProductList = () => {
   };
 
   if (loading) return <Loading />;
-  if (!Array.isArray(filteredProducts)) return <p>Product data invalid</p>;
+  if (!Array.isArray(products)) return <p>Product data invalid</p>;
 
   return (
     <div className="bg-white pt-20 ">
       <h1 className="text-4xl pt-8 pl-4 lg:pl-5">{getHeading()}</h1>
       <div className="mx-auto max-w-screen-md lg:max-w-none px-4 md:px-6 py-12">
         <div className="grid grid-cols-1 gap-x-10 gap-y-16 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 xl:gap-x-12">
-          {filteredProducts.map((product) => (
+          {products.map((product) => (
             <div
               key={product.id}
               data-testid={`product-${product.name

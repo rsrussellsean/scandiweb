@@ -7,7 +7,7 @@ use Exception;
 
 class OrderMutation
 {
-    public static function placeOrder(array $items): string
+    public static function placeOrder(array $items): array
     {
         $pdo = Database::connect();
         try {
@@ -32,17 +32,24 @@ class OrderMutation
             ");
 
             foreach ($items as $item) {
-               $stmt->execute([
-                $orderId,
-                $item['productId'],
-                $item['quantity'],
-                $item['price'],
-                json_encode($item['selectedAttributes'] ?? [])
-            ]);
+                $stmt->execute([
+                    $orderId,
+                    $item['productId'],
+                    $item['quantity'],
+                    $item['price'],
+                    json_encode($item['selectedAttributes'] ?? [])
+                ]);
             }
 
             $pdo->commit();
-            return "Order placed successfully. Order ID: " . $orderId;
+
+            return [
+                'orderId' => (string) $orderId,
+                'status' => 'success',
+                'message' => 'Order placed successfully',
+                'totalAmount' => (float) $total,
+                'itemCount' => count($items)
+            ];
         } catch (Exception $e) {
             $pdo->rollBack();
             throw new \Exception("Failed to place order: " . $e->getMessage());

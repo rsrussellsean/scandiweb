@@ -5,6 +5,12 @@
   force = true
 
 [[redirects]]
+  from = "/graphql"
+  to = "http://rsx.onlinewebshop.net/graphql"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
@@ -14,4 +20,11 @@
   [headers.values]
   Access-Control-Allow-Origin = "*"
   Access-Control-Allow-Methods = "GET, POST, OPTIONS"
+  Access-Control-Allow-Headers = "Content-Type"
+
+[[headers]]
+  for = "/graphql"
+  [headers.values]
+  Access-Control-Allow-Origin = "*"
+  Access-Control-Allow-Methods = "POST, OPTIONS"
   Access-Control-Allow-Headers = "Content-Type"
