@@ -1,21 +1,18 @@
 import { useEffect, useState, useRef } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { Cart } from "../cart/Cart";
 import ShoppingBag from "../../assets/bag.svg";
 
-const Navbar = () => {
+export default function Navbar({ loggedIn, onLogout }) {
   const [categories, setCategories] = useState([]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // fetch(`${import.meta.env.VITE_API_URL}/api/categories.php`)
     fetch("/api/categories.php")
       .then((res) => res.json())
-      .then((data) => {
-        setCategories(data);
-        // console.log(data);
-      })
+      .then((data) => setCategories(data))
       .catch((err) => console.error("Failed to fetch categories", err));
   }, []);
 
@@ -25,20 +22,23 @@ const Navbar = () => {
 
     useEffect(() => {
       if (ref.current) {
-        ref.current.setAttribute('data-testid', isActive ? 'active-category-link' : 'category-link');
+        ref.current.setAttribute(
+          "data-testid",
+          isActive ? "active-category-link" : "category-link"
+        );
       }
     }, [isActive]);
 
     return (
-      <NavLink
-        ref={ref}
-        to={to}
-        onClick={onClick}
-        className={className}
-      >
+      <NavLink ref={ref} to={to} onClick={onClick} className={className}>
         {children}
       </NavLink>
     );
+  };
+
+  const handleLogoutClick = () => {
+    onLogout();
+    navigate("/login");
   };
 
   return (
@@ -48,51 +48,25 @@ const Navbar = () => {
           {/* Burger Button - Mobile */}
           <div className="sm:hidden mr-4">
             <button
-              aria-label="Menu button"
-              type="button"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="inline-flex items-center justify-center rounded-md p-2 text-gray-700 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-green-500"
-              aria-controls="mobile-menu"
-              aria-expanded={isMobileMenuOpen}
+              className="p-2 rounded-md text-gray-700 hover:bg-gray-200"
             >
-              <span className="sr-only">Open main menu</span>
-              <svg
-                className={`${isMobileMenuOpen ? "hidden" : "block"} size-6`}
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
-                />
-              </svg>
-              <svg
-                className={`${isMobileMenuOpen ? "block" : "hidden"} size-6`}
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
+              {isMobileMenuOpen ? "✖" : "☰"}
             </button>
-          </div>          
+          </div>
+
           {/* Desktop Navigation */}
           <ul className="hidden sm:flex space-x-4">
             {categories.map((cat) => {
-              const categoryPath = cat.name.toLowerCase() === "all" ? "/all" : `/${cat.name.toLowerCase()}`;
+              const categoryPath =
+                cat.name.toLowerCase() === "all"
+                  ? "/all"
+                  : `/${cat.name.toLowerCase()}`;
               return (
                 <li key={cat.id}>
                   <CategoryNavLink
                     to={categoryPath}
-                    className={({ isActive }) => 
+                    className={({ isActive }) =>
                       `block py-2 underline-offset-4 decoration-green-500 decoration-2 hover:underline hover:text-green-500 ${
                         isActive ? "underline text-green-500" : "text-black"
                       }`
@@ -107,22 +81,28 @@ const Navbar = () => {
         </div>
 
         {/* Center Logo */}
-        <div className="absolute left-1/2 transform -translate-x-1/2 text-2xl font-bold whitespace-nowrap">
-          <img
-            src={ShoppingBag}
-            alt="Shopping Bag"
-            style={{ width: "30px", height: "30px" }}
-          />
+        <div className="absolute left-1/2 transform -translate-x-1/2">
+          <img src={ShoppingBag} alt="Shopping Bag" width="30" height="30" />
         </div>
 
-        {/* Right Section: Cart */}
-        <div className="ml-auto pr-4">
-          <Cart />
+        {/* Right Section: Cart + Logout */}
+        <div className="ml-auto flex items-center space-x-4">
+          {loggedIn && <Cart />}
+          {loggedIn && (
+            <button
+              onClick={handleLogoutClick}
+              className="bg-gray-600 text-white px-3 py-1 rounded hover:bg-red-500 ml-4 cursor-pointer"
+              data-testid="logout-button"
+            >
+              Logout
+            </button>
+          )}
         </div>
-      </nav>      
+      </nav>
+
       {/* Mobile Menu Dropdown */}
       {isMobileMenuOpen && (
-        <div id="mobile-menu" className="sm:hidden bg-white px-4 pb-4">
+        <div className="sm:hidden bg-white px-4 pb-4">
           <ul className="space-y-2">
             {categories.map((cat) => (
               <li key={cat.id}>
@@ -133,7 +113,7 @@ const Navbar = () => {
                       : `/${cat.name.toLowerCase()}`
                   }
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className={({ isActive }) => 
+                  className={({ isActive }) =>
                     `block py-2 text-black hover:text-green-500 ${
                       isActive ? "font-bold text-green-500" : ""
                     }`
@@ -148,6 +128,4 @@ const Navbar = () => {
       )}
     </div>
   );
-};
-
-export default Navbar;
+}

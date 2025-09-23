@@ -9,13 +9,6 @@ class GenericCategory extends Category
         return [
             'id' => $this->getId(),
             'name' => $this->getName(),
-            'type' => 'generic'
         ];
     }
-
-    public function getApplicableAttributes(): array
-    {
-        return []; 
-    }
 }
-

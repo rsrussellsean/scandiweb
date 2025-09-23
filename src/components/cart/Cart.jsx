@@ -1,6 +1,7 @@
 import { useState, useRef, Fragment } from "react";
 import { createPortal } from "react-dom";
 import "./Cart.css";
+import { useNavigate } from "react-router-dom"; // <--- import this
 
 import { useCart } from "../../context/CartContext";
 import {
@@ -19,6 +20,7 @@ import {
 
 export const Cart = () => {
   // const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
 
   const {
     cartItems,
@@ -340,7 +342,8 @@ export const Cart = () => {
                           </p>
                         </div>
 
-                        <div className="mt-6">                          {cartItems.length === 0 ? (
+                        <div className="mt-6">
+                          {cartItems.length === 0 ? (
                             <button
                               aria-label="Place Order"
                               data-testid="place-order-btn"
@@ -359,6 +362,29 @@ export const Cart = () => {
                             </button>
                           )}
                         </div>
+                        {/* <div className="mt-6">
+                          {cartItems.length === 0 ? (
+                            <button
+                              aria-label="Place Order"
+                              data-testid="place-order-btn"
+                              className="flex w-full items-center justify-center bg-gray-300 px-6 py-3 text-base font-medium text-white shadow-xs cursor-not-allowed disabled"
+                            >
+                              PLACE ORDER
+                            </button>
+                          ) : (
+                            <button
+                              aria-label="Place Order"
+                              data-testid="place-order-btn"
+                              onClick={() => {
+                                setIsCartOpen(false); // close the cart overlay
+                                navigate("/checkout"); // go to checkout page
+                              }}
+                              className="flex w-full items-center justify-center bg-green-500 px-6 py-3 text-base font-medium text-white shadow-xs hover:bg-green-600 cursor-pointer"
+                            >
+                              PLACE ORDER
+                            </button>
+                          )}
+                        </div> */}
                       </div>
                     </div>
                   </DialogPanel>
