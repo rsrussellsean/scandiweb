@@ -1,27 +1,33 @@
 <?php
 
-namespace FastRoute\DataGenerator;
+namespace FastRoute\Dispatcher;
 
 class GroupPosBased extends RegexBasedAbstract
 {
-    protected function getApproxChunkSize()
+    public function __construct($data)
     {
-        return 10;
+        list($this->staticRouteMap, $this->variableRouteData) = $data;
     }
 
-    protected function processChunk($regexToRoutesMap)
+    protected function dispatchVariableRoute($routeData, $uri)
     {
-        $routeMap = [];
-        $regexes = [];
-        $offset = 1;
-        foreach ($regexToRoutesMap as $regex => $route) {
-            $regexes[] = $regex;
-            $routeMap[$offset] = [$route->handler, $route->variables];
+        foreach ($routeData as $data) {
+            if (!preg_match($data['regex'], $uri, $matches)) {
+                continue;
+            }
 
-            $offset += count($route->variables);
+            // find first non-empty match
+            for ($i = 1; '' === $matches[$i]; ++$i);
+
+            list($handler, $varNames) = $data['routeMap'][$i];
+
+            $vars = [];
+            foreach ($varNames as $varName) {
+                $vars[$varName] = $matches[$i++];
+            }
+            return [self::FOUND, $handler, $vars];
         }
 
-        $regex = '~^(?:' . implode('|', $regexes) . ')$~';
-        return ['regex' => $regex, 'routeMap' => $routeMap];
+        return [self::NOT_FOUND];
     }
 }

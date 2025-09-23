@@ -1,31 +1,31 @@
 <?php
 
-namespace FastRoute\DataGenerator;
+namespace FastRoute\Dispatcher;
 
 class CharCountBased extends RegexBasedAbstract
 {
-    protected function getApproxChunkSize()
+    public function __construct($data)
     {
-        return 30;
+        list($this->staticRouteMap, $this->variableRouteData) = $data;
     }
 
-    protected function processChunk($regexToRoutesMap)
+    protected function dispatchVariableRoute($routeData, $uri)
     {
-        $routeMap = [];
-        $regexes = [];
+        foreach ($routeData as $data) {
+            if (!preg_match($data['regex'], $uri . $data['suffix'], $matches)) {
+                continue;
+            }
 
-        $suffixLen = 0;
-        $suffix = '';
-        $count = count($regexToRoutesMap);
-        foreach ($regexToRoutesMap as $regex => $route) {
-            $suffixLen++;
-            $suffix .= "\t";
+            list($handler, $varNames) = $data['routeMap'][end($matches)];
 
-            $regexes[] = '(?:' . $regex . '/(\t{' . $suffixLen . '})\t{' . ($count - $suffixLen) . '})';
-            $routeMap[$suffix] = [$route->handler, $route->variables];
+            $vars = [];
+            $i = 0;
+            foreach ($varNames as $varName) {
+                $vars[$varName] = $matches[++$i];
+            }
+            return [self::FOUND, $handler, $vars];
         }
 
-        $regex = '~^(?|' . implode('|', $regexes) . ')$~';
-        return ['regex' => $regex, 'suffix' => '/' . $suffix, 'routeMap' => $routeMap];
+        return [self::NOT_FOUND];
     }
 }
